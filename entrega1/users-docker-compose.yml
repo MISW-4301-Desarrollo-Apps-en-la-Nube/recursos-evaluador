@@ -34,8 +34,7 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      USERS_PATH: users
-      USERS_PORT: ${CONFIG_PORT}
+      USERS_PATH: "http://users:${CONFIG_PORT}"
     depends_on:
       routes_db:
         condition: service_healthy
@@ -60,8 +59,7 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      USERS_PATH: users
-      USERS_PORT: ${CONFIG_PORT}
+      USERS_PATH: "http://users:${CONFIG_PORT}"
     depends_on:
       posts_db:
         condition: service_healthy
@@ -86,8 +84,7 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      USERS_PATH: users
-      USERS_PORT: ${CONFIG_PORT}
+      USERS_PATH: "http://users:${CONFIG_PORT}"
     depends_on:
       offers_db:
         condition: service_healthy
