@@ -1,0 +1,1477 @@
+{
+	"info": {
+		"_postman_id": "26a0e725-8408-4491-b74e-96fa768cc4ac",
+		"name": "Entrega 2 - Verify new logic",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1524525"
+	},
+	"item": [
+		{
+			"name": "Reset",
+			"item": [
+				{
+					"name": "Reset users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/users/reset",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"users",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset routes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/routes/reset",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"routes",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset posts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/posts/reset",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"posts",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset offers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/offers/reset",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"offers",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Create users",
+			"item": [
+				{
+					"name": "Creación de usuarios",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"if(jsonData.token) {",
+									"    pm.collectionVariables.set('token', jsonData.token);",
+									"}",
+									"",
+									"tests[\"Status should be 201\"] = responseCode.code == 201;",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const timestamp = Date.now();",
+									"",
+									"let email = pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase();",
+									"const emailParts = email.split('@');",
+									"email = `${emailParts[0]}${timestamp}@${emailParts[1]}`;",
+									"",
+									"const username = pm.variables.replaceIn(\"{{$randomLoremWord}}\").toLowerCase();",
+									"const password = pm.variables.replaceIn(\"{{$randomPassword}}\").toLowerCase();",
+									"",
+									"pm.collectionVariables.set('FIRST_USER_EMAIL', 'wr.ravelo@gmail.com');",
+									"pm.collectionVariables.set('FIRST_USER_NAME', 'william');",
+									"pm.collectionVariables.set('FIRST_USER_PASSWORD', '123456');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{FIRST_USER_NAME}}\",\n    \"password\": \"{{FIRST_USER_PASSWORD}}\",\n    \"email\": \"{{FIRST_USER_EMAIL}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/users",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de usuarios 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"if(jsonData.token) {",
+									"    pm.collectionVariables.set('second_token', jsonData.token);",
+									"}",
+									"",
+									"tests[\"Status should be 201\"] = responseCode.code == 201;",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const timestamp = Date.now();",
+									"",
+									"let email = pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase();",
+									"const emailParts = email.split('@');",
+									"email = `${emailParts[0]}${timestamp}@${emailParts[1]}`;",
+									"",
+									"const username = pm.variables.replaceIn(\"{{$randomLoremWord}}\").toLowerCase();",
+									"const password = pm.variables.replaceIn(\"{{$randomPassword}}\").toLowerCase();",
+									"",
+									"pm.collectionVariables.set('SECOND_USER_EMAIL', 'ca.forero10@uniandes.edu.co');",
+									"pm.collectionVariables.set('SECOND_USER_NAME', 'cesar');",
+									"pm.collectionVariables.set('SECOND_USER_PASSWORD', '123456');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{SECOND_USER_NAME}}\",\n    \"password\": \"{{SECOND_USER_PASSWORD}}\",\n    \"email\": \"{{SECOND_USER_EMAIL}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/users",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generación de token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"if(jsonData.token) {",
+									"    pm.collectionVariables.set('token', jsonData.token);",
+									"}",
+									"",
+									"tests[\"Status should be 200\"] = responseCode.code == 200;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{FIRST_USER_NAME}}\",\n    \"password\": \"{{FIRST_USER_PASSWORD}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/users/auth",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"users",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generación de token 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"if(jsonData.token) {",
+									"    pm.collectionVariables.set('second_token', jsonData.token);",
+									"}",
+									"",
+									"tests[\"Status should be 200\"] = responseCode.code == 200;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{SECOND_USER_NAME}}\",\n    \"password\": \"{{SECOND_USER_PASSWORD}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/users/auth",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"users",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Crear publicacion",
+			"item": [
+				{
+					"name": "Creación de trayecto",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set('route_id', jsonData.id);",
+									"",
+									"tests[\"Status should be 201\"] = responseCode.code == 201;"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const timestamp = Date.now();",
+									"",
+									"let bagCost = pm.variables.replaceIn(\"{{$randomInt}}\");",
+									"let sourceAirportCode = pm.variables.replaceIn(\"{{$randomCountryCode}}\");",
+									"let sourceCountry = pm.variables.replaceIn(\"{{$randomCountry}}\");",
+									"let destinyAirportCode = pm.variables.replaceIn(\"{{$randomCountryCode}}\");",
+									"let destinyCountry = pm.variables.replaceIn(\"{{$randomCountry}}\");",
+									"",
+									"function formatDate(date) {",
+									"    let day = date.getDate();",
+									"    let month = date.getMonth() + 1;",
+									"    const year = date.getFullYear();",
+									"    if (day < 10) {",
+									"        day = '0' + day;",
+									"    }",
+									"",
+									"    if (month < 10) {",
+									"        month = `0${month}`;",
+									"    }",
+									"",
+									"    return `${year}-${month}-${day}`;",
+									"}",
+									"",
+									"let when = new Date();",
+									"when.setDate(when.getDate() + 5);",
+									"when = formatDate(when);",
+									"",
+									"pm.collectionVariables.set('BAG_COST', 300);",
+									"pm.collectionVariables.set('SOURCE_AIRPORT_CODE', 'LAX');",
+									"pm.collectionVariables.set('SOURCE_COUNTRY', 'USA');",
+									"pm.collectionVariables.set('DESTINY_AIRPORT_CODE', 'BOG');",
+									"pm.collectionVariables.set('DESTINY_COUNTRY', 'Colombia');",
+									"pm.collectionVariables.set('WHEN', '2022-03-11');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sourceAirportCode\": \"{{SOURCE_AIRPORT_CODE}}\",\n    \"sourceCountry\": \"{{SOURCE_COUNTRY}}\",\n    \"destinyAirportCode\": \"{{DESTINY_AIRPORT_CODE}}\",\n    \"destinyCountry\": \"{{DESTINY_COUNTRY}}\",\n    \"bagCost\": 300\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/routes",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"routes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de publicación campos faltantes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 400\"] = responseCode.code == 400;"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function formatDate(date) {",
+									"    let day = date.getDate();",
+									"    let month = date.getMonth() + 1;",
+									"    const year = date.getFullYear();",
+									"    if (day < 10) {",
+									"        day = '0' + day;",
+									"    }",
+									"",
+									"    if (month < 10) {",
+									"        month = `0${month}`;",
+									"    }",
+									"",
+									"    return `${year}-${month}-${day}`;",
+									"}",
+									"",
+									"let plannedStartDate = new Date();",
+									"plannedStartDate.setDate(plannedStartDate.getDate() + 2);",
+									"plannedStartDate = formatDate(plannedStartDate);",
+									"",
+									"let plannedEndDate = new Date();",
+									"plannedEndDate.setDate(plannedEndDate.getDate() + 6);",
+									"plannedEndDate = formatDate(plannedEndDate);",
+									"",
+									"pm.collectionVariables.set('PLANNED_START_DATE', '2022-03-08');",
+									"pm.collectionVariables.set('PLANNED_END_DATE', '2022-03-12');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"plannedStartDate\": \"{{PLANNED_START_DATE}}\",\n    \"plannedEndDate\": \"{{PLANNED_END_DATE}}\",\n    \"bagCost\": 300\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de publicación token invalido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 401\"] = responseCode.code == 401;"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}invalid",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"plannedStartDate\": \"{{PLANNED_START_DATE}}\",\n    \"plannedEndDate\": \"{{PLANNED_END_DATE}}\",\n    \"origin\": {\n        \"airportCode\": \"{{SOURCE_AIRPORT_CODE}}\",\n        \"country\": \"{{SOURCE_COUNTRY}}\"\n    },\n    \"destiny\": {\n        \"airportCode\": \"{{DESTINY_AIRPORT_CODE}}\",\n        \"country\": \"{{DESTINY_COUNTRY}}\"\n    },\n    \"bagCost\": 300\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de publicación fechas invalidas",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 412\"] = responseCode.code == 412;",
+									"",
+									"let jsonData = JSON.parse(responseBody);",
+									"tests[\"Message should be correct\"] = jsonData.mssg == \"Las fechas no son válidas\";"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"plannedStartDate\": \"{{PLANNED_END_DATE}}\",\n    \"plannedEndDate\": \"{{PLANNED_START_DATE}}\",\n    \"origin\": {\n        \"airportCode\": \"{{SOURCE_AIRPORT_CODE}}\",\n        \"country\": \"{{SOURCE_COUNTRY}}\"\n    },\n    \"destiny\": {\n        \"airportCode\": \"{{DESTINY_AIRPORT_CODE}}\",\n        \"country\": \"{{DESTINY_COUNTRY}}\"\n    },\n    \"bagCost\": 300\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de publicación reusando trayecto que ya existe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 201\"] = responseCode.code == 201;",
+									"",
+									"function valid(data) {",
+									"    return data != null && data != undefined;",
+									"}",
+									"",
+									"let jsonData = JSON.parse(responseBody);",
+									"tests[\"Should have data\"] = valid(jsonData.data);",
+									"tests[\"Should have data createdAt\"] = valid(jsonData.data.createdAt);",
+									"tests[\"Should have data id\"] = valid(jsonData.data.id);",
+									"tests[\"Should have data route\"] = valid(jsonData.data.route);",
+									"tests[\"Should have route createdAt\"] = valid(jsonData.data.route.createdAt);",
+									"tests[\"Should have route expireAt\"] = valid(jsonData.data.route.expireAt);",
+									"tests[\"Should have route id\"] = valid(jsonData.data.route.id);",
+									"tests[\"Should have data userId\"] = valid(jsonData.data.userId);",
+									"tests[\"Should reuse already created route id\"] = jsonData.data.route.id == pm.collectionVariables.get(\"route_id\");",
+									"tests[\"Should have msg\"] = valid(jsonData.msg);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"plannedStartDate\": \"{{PLANNED_START_DATE}}\",\n    \"plannedEndDate\": \"{{PLANNED_END_DATE}}\",\n    \"origin\": {\n        \"airportCode\": \"{{SOURCE_AIRPORT_CODE}}\",\n        \"country\": \"{{SOURCE_COUNTRY}}\"\n    },\n    \"destiny\": {\n        \"airportCode\": \"{{DESTINY_AIRPORT_CODE}}\",\n        \"country\": \"{{DESTINY_COUNTRY}}\"\n    },\n    \"bagCost\": 300\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de publicación donde ya existe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 412\"] = responseCode.code == 412;",
+									"",
+									"let jsonData = JSON.parse(responseBody);",
+									"tests[\"Message should be correct\"] = jsonData.mssg == \"El usuario ya tiene una publicación para la misma fecha\";"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"plannedStartDate\": \"{{PLANNED_START_DATE}}\",\n    \"plannedEndDate\": \"{{PLANNED_END_DATE}}\",\n    \"origin\": {\n        \"airportCode\": \"{{SOURCE_AIRPORT_CODE}}\",\n        \"country\": \"{{SOURCE_COUNTRY}}\"\n    },\n    \"destiny\": {\n        \"airportCode\": \"{{DESTINY_AIRPORT_CODE}}\",\n        \"country\": \"{{DESTINY_COUNTRY}}\"\n    },\n    \"bagCost\": 300\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de publicación creando un nuevo trayecto",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 201\"] = responseCode.code == 201;",
+									"",
+									"function valid(data) {",
+									"    return data != null && data != undefined;",
+									"}",
+									"",
+									"let jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set('post_id', jsonData.data.id);",
+									"",
+									"tests[\"Should have data\"] = valid(jsonData.data);",
+									"tests[\"Should have data createdAt\"] = valid(jsonData.data.createdAt);",
+									"tests[\"Should have data id\"] = valid(jsonData.data.id);",
+									"tests[\"Should have data route\"] = valid(jsonData.data.route);",
+									"tests[\"Should have route createdAt\"] = valid(jsonData.data.route.createdAt);",
+									"tests[\"Should have route expireAt\"] = valid(jsonData.data.route.expireAt);",
+									"tests[\"Should have route id\"] = valid(jsonData.data.route.id);",
+									"tests[\"Should have data userId\"] = valid(jsonData.data.userId);",
+									"tests[\"Should create new route id\"] = jsonData.data.route.id != pm.collectionVariables.get(\"route_id\");",
+									"tests[\"Should have msg\"] = valid(jsonData.msg);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function formatDate(date) {",
+									"    let day = date.getDate();",
+									"    let month = date.getMonth() + 1;",
+									"    const year = date.getFullYear();",
+									"    if (day < 10) {",
+									"        day = '0' + day;",
+									"    }",
+									"",
+									"    if (month < 10) {",
+									"        month = `0${month}`;",
+									"    }",
+									"",
+									"    return `${year}-${month}-${day}`;",
+									"}",
+									"",
+									"let bagCost = pm.variables.replaceIn(\"{{$randomInt}}\");",
+									"let sourceAirportCode = pm.variables.replaceIn(\"{{$randomCountryCode}}\");",
+									"let sourceCountry = pm.variables.replaceIn(\"{{$randomCountry}}\");",
+									"let destinyAirportCode = pm.variables.replaceIn(\"{{$randomCountryCode}}\");",
+									"let destinyCountry = pm.variables.replaceIn(\"{{$randomCountry}}\");",
+									"",
+									"pm.collectionVariables.set('BAG_COST', 300);",
+									"pm.collectionVariables.set('SOURCE_AIRPORT_CODE', 'LTN');",
+									"pm.collectionVariables.set('SOURCE_COUNTRY', 'Inglaterra');",
+									"pm.collectionVariables.set('DESTINY_AIRPORT_CODE', 'MEC');",
+									"pm.collectionVariables.set('DESTINY_COUNTRY', 'Ecuador');",
+									"",
+									"let plannedStartDate = new Date();",
+									"plannedStartDate.setDate(plannedStartDate.getDate() + 2);",
+									"plannedStartDate = formatDate(plannedStartDate);",
+									"",
+									"let plannedEndDate = new Date();",
+									"plannedEndDate.setDate(plannedEndDate.getDate() + 6);",
+									"plannedEndDate = formatDate(plannedEndDate);",
+									"",
+									"pm.collectionVariables.set('PLANNED_START_DATE', '2022-03-08');",
+									"pm.collectionVariables.set('PLANNED_END_DATE', '2022-03-12');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"plannedStartDate\": \"{{PLANNED_START_DATE}}\",\n    \"plannedEndDate\": \"{{PLANNED_END_DATE}}\",\n    \"origin\": {\n        \"airportCode\": \"{{SOURCE_AIRPORT_CODE}}\",\n        \"country\": \"{{SOURCE_COUNTRY}}\"\n    },\n    \"destiny\": {\n        \"airportCode\": \"{{DESTINY_AIRPORT_CODE}}\",\n        \"country\": \"{{DESTINY_COUNTRY}}\"\n    },\n    \"bagCost\": 300\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Crear oferta",
+			"item": [
+				{
+					"name": "Creación de oferta campos faltantes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 400\"] = responseCode.code == 400;"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const timestamp = Date.now();",
+									"",
+									"let description = pm.variables.replaceIn(\"{{$randomLoremSentence}}\");",
+									"let fragile = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+									"let offer = pm.variables.replaceIn(\"{{$randomInt}}\");",
+									"",
+									"const sizes = [\"LARGE\", \"MEDIUM\", \"SMALL\"];",
+									"const size = sizes[Math.floor(Math.random() * sizes.length)];",
+									"",
+									"pm.collectionVariables.set('DESCRIPTION', \"Descripcion\");",
+									"pm.collectionVariables.set('FRAGILE', true);",
+									"pm.collectionVariables.set('OFFER', 200);",
+									"pm.collectionVariables.set('NEGATIVE_OFFER', -200);",
+									"pm.collectionVariables.set('SIZE', 'LARGE');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{second_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"{{DESCRIPTION}}\",\n    \"size\": \"{{SIZE}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts/{{post_id}}/offers",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts",
+								"{{post_id}}",
+								"offers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de oferta token invalido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 401\"] = responseCode.code == 401;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}invalid",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"My description\",\n    \"size\": \"LARGE\",\n    \"fragile\": true,\n    \"offer\": 200\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts/{{post_id}}/offers",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts",
+								"{{post_id}}",
+								"offers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de oferta publicación no existe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 404\"] = responseCode.code == 404;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"My description\",\n    \"size\": \"LARGE\",\n    \"fragile\": true,\n    \"offer\": 200\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts/{{post_id}}12/offers",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts",
+								"{{post_id}}12",
+								"offers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de oferta donde dueño de publicación es el mismo intentando crear oferta",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 412\"] = responseCode.code == 412;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"My description\",\n    \"size\": \"LARGE\",\n    \"fragile\": true,\n    \"offer\": 200\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts/{{post_id}}/offers",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts",
+								"{{post_id}}",
+								"offers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de oferta",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 201\"] = responseCode.code == 201;",
+									"",
+									"function valid(data) {",
+									"    return data != null && data != undefined;",
+									"}",
+									"",
+									"let jsonData = JSON.parse(responseBody);",
+									"pm.collectionVariables.set('offer_id', jsonData.id);",
+									"tests[\"Should have data\"] = valid(jsonData.data);",
+									"tests[\"Should have data id\"] = valid(jsonData.data.id);",
+									"tests[\"Should have data userId\"] = valid(jsonData.data.userId);",
+									"tests[\"Should have data createdAt\"] = valid(jsonData.data.createdAt);",
+									"tests[\"Should have data postId\"] = valid(jsonData.data.postId);",
+									"tests[\"Should have route msg\"] = valid(jsonData.msg);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{second_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"My description\",\n    \"size\": \"LARGE\",\n    \"fragile\": true,\n    \"offer\": 200\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts/{{post_id}}/offers",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts",
+								"{{post_id}}",
+								"offers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Obtener publicación",
+			"item": [
+				{
+					"name": "Obtener publicación token invalido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 401\"] = responseCode.code == 401;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}invalid",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts/{{post_id}}",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts",
+								"{{post_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener publicación que no existe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 404\"] = responseCode.code == 404;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts/{{post_id}}12",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts",
+								"{{post_id}}12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener publicación usuario no tiene permisos para verla",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 403\"] = responseCode.code == 403;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{second_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts/{{post_id}}",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts",
+								"{{post_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener publicación",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"tests[\"Status should be 200\"] = responseCode.code == 200;",
+									"",
+									"function valid(data) {",
+									"    return data != null && data != undefined;",
+									"}",
+									"",
+									"let jsonData = JSON.parse(responseBody);",
+									"tests[\"Should have data\"] = valid(jsonData.data);",
+									"tests[\"Should have data id\"] = valid(jsonData.data.id);",
+									"tests[\"Should have data plannedStartDate\"] = valid(jsonData.data.plannedStartDate);",
+									"tests[\"Should have data plannedEndDate\"] = valid(jsonData.data.plannedEndDate);",
+									"tests[\"Should have data createdAt\"] = valid(jsonData.data.createdAt);",
+									"",
+									"tests[\"Should have route id\"] = valid(jsonData.data.route.id);",
+									"tests[\"Should have route origin airportCode\"] = valid(jsonData.data.route.origin.airportCode);",
+									"tests[\"Should have route origin country\"] = valid(jsonData.data.route.origin.country);",
+									"tests[\"Should have route destiny airportCode\"] = valid(jsonData.data.route.destiny.airportCode);",
+									"tests[\"Should have route destiny country\"] = valid(jsonData.data.route.destiny.country);",
+									"tests[\"Should have route bagCost\"] = valid(jsonData.data.route.bagCost);",
+									"",
+									"tests[\"Should have offers\"] = jsonData.data.offers.length == 1;",
+									"tests[\"Should have offers id\"] = valid(jsonData.data.offers[0].id);",
+									"tests[\"Should have offers userId\"] = valid(jsonData.data.offers[0].userId);",
+									"tests[\"Should have offers description\"] = valid(jsonData.data.offers[0].description);",
+									"tests[\"Should have offers size\"] = valid(jsonData.data.offers[0].size);",
+									"tests[\"Should have offers fragile\"] = valid(jsonData.data.offers[0].fragile);",
+									"tests[\"Should have offers offer\"] = valid(jsonData.data.offers[0].offer);",
+									"tests[\"Should have offers score\"] = valid(jsonData.data.offers[0].score);",
+									"tests[\"Should have offers createdAt\"] = valid(jsonData.data.offers[0].createdAt);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/public/posts/{{post_id}}",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"public",
+								"posts",
+								"{{post_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "INGRESS_PATH",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
