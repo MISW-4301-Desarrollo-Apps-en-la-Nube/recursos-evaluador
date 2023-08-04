@@ -801,7 +801,7 @@
 									"let jsonData = JSON.parse(responseBody);",
 									"",
 									"tests[\"Status should be 412\"] = responseCode.code == 412;",
-									"tests[\"Response has msg\"] = jsonData.msg === 'Las fechas no son válidas';"
+									"tests[\"Response has msg\"] = jsonData.msg === 'Las fechas del trayecto no son válidas';"
 								],
 								"type": "text/javascript"
 							}
@@ -883,7 +883,7 @@
 									"let jsonData = JSON.parse(responseBody);",
 									"",
 									"tests[\"Status should be 412\"] = responseCode.code == 412;",
-									"tests[\"Response has msg\"] = jsonData.msg === 'Las fechas no son válidas';"
+									"tests[\"Response has msg\"] = jsonData.msg === 'Las fechas del trayecto no son válidas';"
 								],
 								"type": "text/javascript"
 							}
@@ -934,7 +934,7 @@
 									"let jsonData = JSON.parse(responseBody);",
 									"",
 									"tests[\"Status should be 412\"] = responseCode.code == 412;",
-									"tests[\"Response has msg\"] = jsonData.msg === 'Las fechas no son válidas';"
+									"tests[\"Response has msg\"] = jsonData.msg === 'Las fechas del trayecto no son válidas';"
 								],
 								"type": "text/javascript"
 							}
@@ -1285,7 +1285,8 @@
 									"tests[\"Route should have destinyCountry\"] = route.destinyCountry !== undefined;",
 									"tests[\"Route should have bagCost\"] = route.bagCost !== undefined;",
 									"tests[\"Route should have plannedStartDate\"] = route.plannedStartDate !== undefined;",
-									"tests[\"Route should have plannedEndDate\"] = route.plannedEndDate !== undefined;"
+									"tests[\"Route should have plannedEndDate\"] = route.plannedEndDate !== undefined;",
+									"tests[\"Route should have createdAt\"] = route.createdAt !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -1452,7 +1453,8 @@
 									"tests[\"Route should have destinyCountry\"] = route.destinyCountry !== undefined;",
 									"tests[\"Route should have bagCost\"] = route.bagCost !== undefined;",
 									"tests[\"Route should have plannedStartDate\"] = route.plannedStartDate !== undefined;",
-									"tests[\"Route should have plannedEndDate\"] = route.plannedEndDate !== undefined;"
+									"tests[\"Route should have plannedEndDate\"] = route.plannedEndDate !== undefined;",
+									"tests[\"Route should have createdAt\"] = route.createdAt !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -1581,7 +1583,8 @@
 									"tests[\"Route should have destinyCountry\"] = jsonData.destinyCountry !== undefined;",
 									"tests[\"Route should have bagCost\"] = jsonData.bagCost !== undefined;",
 									"tests[\"Route should have plannedStartDate\"] = jsonData.plannedStartDate !== undefined;",
-									"tests[\"Route should have plannedEndDate\"] = jsonData.plannedEndDate !== undefined;"
+									"tests[\"Route should have plannedEndDate\"] = jsonData.plannedEndDate !== undefined;",
+									"tests[\"Route should have createdAt\"] = jsonData.createdAt !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -2412,7 +2415,10 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"tests[\"Status should be 412\"] = responseCode.code == 412;"
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"tests[\"Status should be 412\"] = responseCode.code == 412;",
+									"tests[\"Response has msg\"] = jsonData.msg === 'La fecha expiración no es válida';"
 								],
 								"type": "text/javascript"
 							}
@@ -2479,7 +2485,7 @@
 									"tests[\"Post should have routeId\"] = post.routeId !== undefined;",
 									"tests[\"Post should have userId\"] = post.userId !== undefined;",
 									"tests[\"Post should have expireAt\"] = post.expireAt !== undefined;",
-									""
+									"tests[\"Post should have createdAt\"] = post.createdAt !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -2540,7 +2546,7 @@
 									"tests[\"Post should have routeId\"] = post.routeId !== undefined;",
 									"tests[\"Post should have userId\"] = post.userId !== undefined;",
 									"tests[\"Post should have expireAt\"] = post.expireAt !== undefined;",
-									""
+									"tests[\"Post should have createdAt\"] = post.createdAt !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -2664,7 +2670,7 @@
 									"tests[\"Post should match routeId\"] = post.routeId === pm.collectionVariables.get(\"ROUTE_ID\");",
 									"tests[\"Post should have userId\"] = post.userId !== undefined;",
 									"tests[\"Post should have expireAt\"] = post.expireAt !== undefined;",
-									""
+									"tests[\"Post should have createdAt\"] = post.createdAt !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -2731,7 +2737,7 @@
 									"tests[\"Post should have routeId\"] = post.routeId !== undefined;",
 									"tests[\"Post should have userId\"] = post.userId !== undefined;",
 									"tests[\"Post should have expireAt\"] = post.expireAt !== undefined;",
-									""
+									"tests[\"Post should have createdAt\"] = post.createdAt !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -2858,7 +2864,7 @@
 									"tests[\"Post should have routeId\"] = post.routeId !== undefined;",
 									"tests[\"Post should have userId\"] = post.userId !== undefined;",
 									"tests[\"Post should have expireAt\"] = post.expireAt !== undefined;",
-									""
+									"tests[\"Post should have createdAt\"] = post.createdAt !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -2955,7 +2961,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/posts?when=2023-02-20&route={{route_id}}&filter=me",
+							"raw": "http://{{INGRESS_PATH}}/posts?when=2023-02-20&route={{ROUTE_ID}}&filter=me",
 							"protocol": "http",
 							"host": [
 								"{{INGRESS_PATH}}"
@@ -2970,7 +2976,7 @@
 								},
 								{
 									"key": "route",
-									"value": "{{route_id}}"
+									"value": "{{ROUTE_ID}}"
 								},
 								{
 									"key": "filter",
@@ -3020,7 +3026,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/posts?when=2023-02-20&route={{route_id}}&filter=me",
+							"raw": "http://{{INGRESS_PATH}}/posts?when=2023-02-20&route={{ROUTE_ID}}&filter=me",
 							"protocol": "http",
 							"host": [
 								"{{INGRESS_PATH}}"
@@ -3035,7 +3041,7 @@
 								},
 								{
 									"key": "route",
-									"value": "{{route_id}}"
+									"value": "{{ROUTE_ID}}"
 								},
 								{
 									"key": "filter",
@@ -3061,7 +3067,7 @@
 									"tests[\"Post should have routeId\"] = jsonData.routeId !== undefined;",
 									"tests[\"Post should have userId\"] = jsonData.userId !== undefined;",
 									"tests[\"Post should have expireAt\"] = jsonData.expireAt !== undefined;",
-									""
+									"tests[\"Post should have createdAt\"] = jsonData.createdAt !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -4025,7 +4031,7 @@
 									"tests[\"Offer should have fragile\"] = offer.fragile !== undefined;",
 									"tests[\"Offer should have offer\"] = offer.offer !== undefined;",
 									"tests[\"Offer should have createdAt\"] = offer.createdAt !== undefined;",
-									""
+									"tests[\"Offer should have userId\"] = offer.userId !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -4089,7 +4095,7 @@
 									"tests[\"Offer should have fragile\"] = offer.fragile !== undefined;",
 									"tests[\"Offer should have offer\"] = offer.offer !== undefined;",
 									"tests[\"Offer should have createdAt\"] = offer.createdAt !== undefined;",
-									""
+									"tests[\"Offer should have userId\"] = offer.userId !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -4159,7 +4165,7 @@
 									"tests[\"Offer should have fragile\"] = offer.fragile !== undefined;",
 									"tests[\"Offer should have offer\"] = offer.offer !== undefined;",
 									"tests[\"Offer should have createdAt\"] = offer.createdAt !== undefined;",
-									""
+									"tests[\"Offer should have userId\"] = offer.userId !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -4289,7 +4295,7 @@
 									"tests[\"Offer should have fragile\"] = offer.fragile !== undefined;",
 									"tests[\"Offer should have offer\"] = offer.offer !== undefined;",
 									"tests[\"Offer should have createdAt\"] = offer.createdAt !== undefined;",
-									""
+									"tests[\"Offer should have userId\"] = offer.userId !== undefined;"
 								],
 								"type": "text/javascript"
 							}
@@ -4463,7 +4469,7 @@
 									"tests[\"Offer should have fragile\"] = jsonData.fragile !== undefined;",
 									"tests[\"Offer should have offer\"] = jsonData.offer !== undefined;",
 									"tests[\"Offer should have createdAt\"] = jsonData.createdAt !== undefined;",
-									""
+									"tests[\"Offer should have userId\"] = jsonData.userId !== undefined;"
 								],
 								"type": "text/javascript"
 							}
