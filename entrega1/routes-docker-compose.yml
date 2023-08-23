@@ -27,7 +27,7 @@ services:
   routes:
     build: ../${CONFIG_PATH}
     ports:
-      - "3002:3000"
+      - "3002:${CONFIG_PORT}"
     environment:
       DB_NAME: monitor_routes
       DB_HOST: routes_db

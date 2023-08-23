@@ -77,7 +77,7 @@ services:
   offers:
     build: ../${CONFIG_PATH}
     ports:
-      - "3003:3000"
+      - "3003:${CONFIG_PORT}"
     environment:
       DB_NAME: monitor_offers
       DB_HOST: offers_db

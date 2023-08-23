@@ -52,7 +52,7 @@ services:
   posts:
     build: ../${CONFIG_PATH}
     ports:
-      - "3001:3000"
+      - "3001:${CONFIG_PORT}"
     environment:
       DB_NAME: monitor_posts
       DB_HOST: posts_db
