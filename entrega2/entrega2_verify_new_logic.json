@@ -649,7 +649,7 @@
 							"script": {
 								"exec": [
 									"let expireAt = new Date();",
-									"(expireAt.setDate(expireAt.getDate() + 7));",
+									"(expireAt.setDate(expireAt.getDate() + 1));",
 									"expireAt = expireAt.toISOString();",
 									"",
 									"pm.collectionVariables.set('POST_EXPIREAT', expireAt);"
