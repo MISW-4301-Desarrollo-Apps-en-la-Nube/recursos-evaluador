@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "26a0e725-8408-4491-b74e-96fa768cc4ac",
+		"_postman_id": "0b2f2dbf-7880-40c3-aeb2-82df7dcb6cd6",
 		"name": "Entrega 2 - Verify new logic",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "1524525"
@@ -1664,36 +1664,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "Consulta de salud del servicio",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"tests[\"Status should be 200\"] = responseCode.code == 200;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://{{INGRESS_PATH}}/rf003/ping",
-							"protocol": "http",
-							"host": [
-								"{{INGRESS_PATH}}"
-							],
-							"path": [
-								"rf003",
-								"ping"
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		},
@@ -2337,36 +2307,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "Consulta de salud del servicio",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"tests[\"Status should be 200\"] = responseCode.code == 200;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://{{INGRESS_PATH}}/rf004/ping",
-							"protocol": "http",
-							"host": [
-								"{{INGRESS_PATH}}"
-							],
-							"path": [
-								"rf004",
-								"ping"
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		},
@@ -2677,36 +2617,6 @@
 								"rf005",
 								"posts",
 								"{{POST_ID}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Consulta de salud del servicio Copy",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"tests[\"Status should be 200\"] = responseCode.code == 200;"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://{{INGRESS_PATH}}/rf005/ping",
-							"protocol": "http",
-							"host": [
-								"{{INGRESS_PATH}}"
-							],
-							"path": [
-								"rf005",
-								"ping"
 							]
 						}
 					},
