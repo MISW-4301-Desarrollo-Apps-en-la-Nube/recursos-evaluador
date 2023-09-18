@@ -37,3 +37,15 @@ docker push ghcr.io/misw-4301-desarrollo-apps-en-la-nube/entrega2-rf003:latest
 docker push ghcr.io/misw-4301-desarrollo-apps-en-la-nube/entrega2-rf004:latest
 docker push ghcr.io/misw-4301-desarrollo-apps-en-la-nube/entrega2-rf005:latest
 ```
+
+### Build and push docker images Entrega 3
+
+```bash
+docker build --platform=linux/amd64 ./users -t ghcr.io/misw-4301-desarrollo-apps-en-la-nube/entrega3-users:latest
+docker build --platform=linux/amd64 ./cards -t ghcr.io/misw-4301-desarrollo-apps-en-la-nube/entrega3-cards:latest
+docker build --platform=linux/amd64 ./cards -t ghcr.io/misw-4301-desarrollo-apps-en-la-nube/entrega3-cards-worker:latest -f worker.Dockerfile
+
+docker push ghcr.io/misw-4301-desarrollo-apps-en-la-nube/entrega3-cards:latest
+docker push ghcr.io/misw-4301-desarrollo-apps-en-la-nube/entrega3-cards-worker:latest
+docker push ghcr.io/misw-4301-desarrollo-apps-en-la-nube/entrega3-users:latest
+```
