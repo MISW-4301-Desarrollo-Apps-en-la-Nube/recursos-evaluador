@@ -882,7 +882,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"cardNumber\": \"{{CARD_NUMBER}}\",\n    \"cvv\": \"{{CARD_CVV}}\",\n    \"expirationDate\": \"{{CARD_EXPIRATIONDATE}}\",\n    \"cardholderName\": \"{{CARD_HOLDERNAME}}\"\n} ",
+							"raw": "{\n    \"cardNumber\": \"{{CARD_NUMBER}}\",\n    \"cvv\": \"{{CARD_CVV}}\",\n    \"expirationDate\": \"{{CARD_EXPIRATIONDATE}}\",\n    \"cardHolderName\": \"{{CARD_HOLDERNAME}}\"\n} ",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -941,7 +941,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"cardNumber\": \"{{CARD_NUMBER}}\",\n    \"cvv\": \"{{CARD_CVV}}\",\n    \"expirationDate\": \"{{CARD_EXPIRATIONDATE}}\",\n    \"cardholderName\": \"{{CARD_HOLDERNAME}}\"\n} ",
+							"raw": "{\n    \"cardNumber\": \"{{CARD_NUMBER}}\",\n    \"cvv\": \"{{CARD_CVV}}\",\n    \"expirationDate\": \"{{CARD_EXPIRATIONDATE}}\",\n    \"cardHolderName\": \"{{CARD_HOLDERNAME}}\"\n} ",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1117,12 +1117,12 @@
 									"const cardNumber = random16Digit();",
 									"const cvv = randomThreeDigit();",
 									"const expirationDate = \"28/01\";",
-									"const cardholderName = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
+									"const cardHolderName = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
 									"",
 									"pm.collectionVariables.set('CARD_NUMBER', cardNumber);",
 									"pm.collectionVariables.set('CARD_CVV', cvv);",
 									"pm.collectionVariables.set('CARD_EXPIRATIONDATE', expirationDate);",
-									"pm.collectionVariables.set('CARD_HOLDERNAME', cardholderName);",
+									"pm.collectionVariables.set('CARD_HOLDERNAME', cardHolderName);",
 									"",
 									""
 								],
@@ -1461,12 +1461,12 @@
 									"const cardNumber = random16Digit();",
 									"const cvv = randomThreeDigit();",
 									"const expirationDate = \"28/01\";",
-									"const cardholderName = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
+									"const cardHolderName = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
 									"",
 									"pm.collectionVariables.set('CARD_NUMBER', cardNumber);",
 									"pm.collectionVariables.set('CARD_CVV', cvv);",
 									"pm.collectionVariables.set('CARD_EXPIRATIONDATE', expirationDate);",
-									"pm.collectionVariables.set('CARD_HOLDERNAME', cardholderName);",
+									"pm.collectionVariables.set('CARD_HOLDERNAME', cardHolderName);",
 									"",
 									""
 								],
