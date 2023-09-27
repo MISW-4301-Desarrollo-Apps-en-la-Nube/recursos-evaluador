@@ -1,0 +1,428 @@
+{
+	"info": {
+		"_postman_id": "d330aacf-a8e0-4b38-a783-d471db7df754",
+		"name": "Entrega 3 monitor",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1524525"
+	},
+	"item": [
+		{
+			"name": "Reset",
+			"item": [
+				{
+					"name": "Reset users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/users/reset",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"users",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset cards",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/credit-cards/reset",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"credit-cards",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Configurar Truenative para que sea exitoso siempre",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"resp = pm.response.json()",
+							"if(\"RUV\" in resp){",
+							"    ruv = pm.response.json()[\"RUV\"];",
+							"    pm.collectionVariables.set(\"CARD_RUV\", ruv);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"SUCCESS_RATE\": 100,\n    \"MAX_POLL_DELAY\": 5,\n    \"MAX_WEBHOOK_DELAY\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{INGRESS_PATH}}/native/env",
+					"protocol": "http",
+					"host": [
+						"{{INGRESS_PATH}}"
+					],
+					"path": [
+						"native",
+						"env"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Creación de usuario",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = JSON.parse(responseBody);",
+							"",
+							"if(jsonData.id) {",
+							"    pm.collectionVariables.set('USER_ID', jsonData.id);",
+							"}",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const username = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
+							"const password = pm.variables.replaceIn(\"{{$randomPassword}}\").toLowerCase();",
+							"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
+							"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
+							"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
+							"",
+							"pm.collectionVariables.set('USER_USERNAME', username);",
+							"pm.collectionVariables.set('USER_PASSWORD', password);",
+							"pm.collectionVariables.set('USER_DNI', dni);",
+							"pm.collectionVariables.set('USER_FULLNAME', fullname);",
+							"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{INGRESS_PATH}}/users",
+					"protocol": "http",
+					"host": [
+						"{{INGRESS_PATH}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar usuario a verificado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"status\": \"VERIFICADO\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{INGRESS_PATH}}/users/{{USER_ID}}",
+					"protocol": "http",
+					"host": [
+						"{{INGRESS_PATH}}"
+					],
+					"path": [
+						"users",
+						"{{USER_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generación de token usuario en estado VERIFICADO",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = JSON.parse(responseBody);",
+							"",
+							"tests[\"Status should be 200\"] = responseCode.code == 200;",
+							"tests[\"Response has id\"] = jsonData.id !== undefined;",
+							"tests[\"Response has token\"] = jsonData.token !== undefined;",
+							"tests[\"Response has expireAt\"] = jsonData.expireAt !== undefined;",
+							"",
+							"if(jsonData.token) {",
+							"    pm.collectionVariables.set('USER_TOKEN', jsonData.token);",
+							"}",
+							"",
+							"if(jsonData.id) {",
+							"    pm.collectionVariables.set('USER_ID', jsonData.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{INGRESS_PATH}}/users/auth",
+					"protocol": "http",
+					"host": [
+						"{{INGRESS_PATH}}"
+					],
+					"path": [
+						"users",
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear tarjeta",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randomThreeDigit = () => {",
+							"    const min = 100; // Minimum 3-digit number",
+							"    const max = 999; // Maximum 3-digit number",
+							"    const randomThreeDigitNumber = Math.floor(Math.random() * (max - min + 1)) + min;",
+							"    return randomThreeDigitNumber;",
+							"}",
+							"",
+							"const random16Digit = () => {",
+							"    const min = 1000000000000000; // Minimum 16-digit number",
+							"    const max = 9999999999999999; // Maximum 16-digit number",
+							"    const randomThreeDigitNumber = Math.floor(Math.random() * (max - min + 1)) + min;",
+							"    return randomThreeDigitNumber;",
+							"}",
+							"",
+							"const cardNumber = random16Digit();",
+							"const cvv = randomThreeDigit();",
+							"const expirationDate = \"28/01\";",
+							"const cardholderName = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
+							"",
+							"pm.collectionVariables.set('CARD_NUMBER', cardNumber);",
+							"pm.collectionVariables.set('CARD_CVV', cvv);",
+							"pm.collectionVariables.set('CARD_EXPIRATIONDATE', expirationDate);",
+							"pm.collectionVariables.set('CARD_HOLDERNAME', cardholderName);",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{USER_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cardNumber\": \"{{CARD_NUMBER}}\",\n    \"cvv\": \"{{CARD_CVV}}\",\n    \"expirationDate\": \"{{CARD_EXPIRATIONDATE}}\",\n    \"cardHolderName\": \"{{CARD_HOLDERNAME}}\"\n} ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{INGRESS_PATH}}/credit-cards",
+					"protocol": "http",
+					"host": [
+						"{{INGRESS_PATH}}"
+					],
+					"path": [
+						"credit-cards"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "INGRESS_PATH",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "EMAIL",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

@@ -797,6 +797,59 @@
 					"response": []
 				},
 				{
+					"name": "Configurar Truenative para que devuelva RECHAZADA",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"resp = pm.response.json()",
+									"if(\"RUV\" in resp){",
+									"    ruv = pm.response.json()[\"RUV\"];",
+									"    pm.collectionVariables.set(\"CARD_RUV\", ruv);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"SUCCESS_RATE\": 0,\n    \"MAX_POLL_DELAY\": 5,\n    \"MAX_WEBHOOK_DELAY\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/native/env",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"native",
+								"env"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Crear tarjeta",
 					"event": [
 						{
@@ -877,59 +930,6 @@
 							],
 							"path": [
 								"credit-cards"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Configurar Truenative para que devuelva RECHAZADA",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"resp = pm.response.json()",
-									"if(\"RUV\" in resp){",
-									"    ruv = pm.response.json()[\"RUV\"];",
-									"    pm.collectionVariables.set(\"CARD_RUV\", ruv);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"SUCCESS_RATE\": 0,\n    \"MAX_POLL_DELAY\": 5,\n    \"MAX_WEBHOOK_DELAY\": 5\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{INGRESS_PATH}}/native/env",
-							"protocol": "http",
-							"host": [
-								"{{INGRESS_PATH}}"
-							],
-							"path": [
-								"native",
-								"env"
 							]
 						}
 					},
@@ -1141,6 +1141,59 @@
 					"response": []
 				},
 				{
+					"name": "Configurar Truenative para que devuelva APROBADA",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"resp = pm.response.json()",
+									"if(\"RUV\" in resp){",
+									"    ruv = pm.response.json()[\"RUV\"];",
+									"    pm.collectionVariables.set(\"CARD_RUV\", ruv);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"SUCCESS_RATE\": 100,\n    \"MAX_POLL_DELAY\": 5,\n    \"MAX_WEBHOOK_DELAY\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/native/env",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"native",
+								"env"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Crear otra tarjeta",
 					"event": [
 						{
@@ -1221,59 +1274,6 @@
 							],
 							"path": [
 								"credit-cards"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Configurar Truenative para que devuelva APROBADA",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"resp = pm.response.json()",
-									"if(\"RUV\" in resp){",
-									"    ruv = pm.response.json()[\"RUV\"];",
-									"    pm.collectionVariables.set(\"CARD_RUV\", ruv);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"SUCCESS_RATE\": 100,\n    \"MAX_POLL_DELAY\": 5,\n    \"MAX_WEBHOOK_DELAY\": 5\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{INGRESS_PATH}}/native/env",
-							"protocol": "http",
-							"host": [
-								"{{INGRESS_PATH}}"
-							],
-							"path": [
-								"native",
-								"env"
 							]
 						}
 					},
