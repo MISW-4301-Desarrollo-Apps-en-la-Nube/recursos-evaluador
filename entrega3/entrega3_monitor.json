@@ -119,7 +119,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"SUCCESS_RATE\": 100,\n    \"MAX_POLL_DELAY\": 5,\n    \"MAX_WEBHOOK_DELAY\": 5\n}",
+					"raw": "{\n    \"SUCCESS_RATE\": 100,\n    \"MAX_POLL_DELAY\": 30,\n    \"MAX_WEBHOOK_DELAY\": 30\n}",
 					"options": {
 						"raw": {
 							"language": "json"
