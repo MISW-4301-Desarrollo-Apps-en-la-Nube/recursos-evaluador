@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f2825af5-18c0-4adf-993f-156e17638db8",
+		"_postman_id": "cda2e843-978f-4b5f-acf9-c5c4cbbae743",
 		"name": "Entrega 3",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "1524525"
@@ -578,6 +578,30 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
+									"const randomThreeDigit = () => {",
+									"    const min = 100; // Minimum 3-digit number",
+									"    const max = 999; // Maximum 3-digit number",
+									"    const randomThreeDigitNumber = Math.floor(Math.random() * (max - min + 1)) + min;",
+									"    return randomThreeDigitNumber;",
+									"}",
+									"",
+									"const random16Digit = () => {",
+									"    const min = 1000000000000000; // Minimum 16-digit number",
+									"    const max = 9999999999999999; // Maximum 16-digit number",
+									"    const randomThreeDigitNumber = Math.floor(Math.random() * (max - min + 1)) + min;",
+									"    return randomThreeDigitNumber;",
+									"}",
+									"",
+									"const cardNumber = random16Digit();",
+									"const cvv = randomThreeDigit();",
+									"const expirationDate = \"28/01\";",
+									"const cardHolderName = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
+									"",
+									"pm.collectionVariables.set('CARD_NUMBER', cardNumber);",
+									"pm.collectionVariables.set('CARD_CVV', cvv);",
+									"pm.collectionVariables.set('CARD_EXPIRATIONDATE', expirationDate);",
+									"pm.collectionVariables.set('CARD_HOLDERNAME', cardHolderName);",
+									"",
 									""
 								],
 								"type": "text/javascript"
