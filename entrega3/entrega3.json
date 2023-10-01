@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "cda2e843-978f-4b5f-acf9-c5c4cbbae743",
+		"_postman_id": "4e9d5b30-78ee-4f5c-9358-8d83d341d598",
 		"name": "Entrega 3",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "1524525"
@@ -218,8 +218,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"let jsonData = JSON.parse(responseBody);",
-									"",
 									"tests[\"Status should be 401\"] = responseCode.code == 401;"
 								],
 								"type": "text/javascript"
@@ -259,8 +257,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"let jsonData = JSON.parse(responseBody);",
-									"",
 									"tests[\"Status should be 401\"] = responseCode.code == 401;"
 								],
 								"type": "text/javascript"
@@ -430,8 +426,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"let jsonData = JSON.parse(responseBody);",
-									"",
 									"tests[\"Status should be 401\"] = responseCode.code == 401;"
 								],
 								"type": "text/javascript"
@@ -567,8 +561,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"let jsonData = JSON.parse(responseBody);",
-									"",
 									"tests[\"Status should be 403\"] = responseCode.code === 403;"
 								],
 								"type": "text/javascript"
@@ -650,8 +642,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"let jsonData = JSON.parse(responseBody);",
-									"",
 									"tests[\"Status should be 401\"] = responseCode.code === 401;"
 								],
 								"type": "text/javascript"
@@ -709,8 +699,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"let jsonData = JSON.parse(responseBody);",
-									"",
 									"tests[\"Status should be 400\"] = responseCode.code === 400;"
 								],
 								"type": "text/javascript"
@@ -768,8 +756,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"let jsonData = JSON.parse(responseBody);",
-									"",
 									"tests[\"Status should be 412\"] = responseCode.code === 412;"
 								],
 								"type": "text/javascript"
@@ -1112,8 +1098,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"let jsonData = JSON.parse(responseBody);",
-									"",
 									"tests[\"Status should be 409\"] = responseCode.code === 409;"
 								],
 								"type": "text/javascript"
@@ -1468,8 +1452,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"let jsonData = JSON.parse(responseBody);",
-									"",
 									"tests[\"Status should be 403\"] = responseCode.code === 403;"
 								],
 								"type": "text/javascript"
@@ -1530,8 +1512,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"let jsonData = JSON.parse(responseBody);",
-									"",
 									"tests[\"Status should be 401\"] = responseCode.code === 401;"
 								],
 								"type": "text/javascript"
