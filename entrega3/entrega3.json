@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "4e9d5b30-78ee-4f5c-9358-8d83d341d598",
+		"_postman_id": "9b794d4a-92f9-498a-bf09-f3b7ce57bbd3",
 		"name": "Entrega 3",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "1524525"
@@ -524,6 +524,188 @@
 		{
 			"name": "RF-006 Tarjetas",
 			"item": [
+				{
+					"name": "Configurar Truenative para que devuelva VERIFICADO",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"resp = pm.response.json()",
+									"if(\"RUV\" in resp){",
+									"    ruv = pm.response.json()[\"RUV\"];",
+									"    pm.collectionVariables.set(\"CARD_RUV\", ruv);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"SUCCESS_RATE\": 100,\n    \"MAX_POLL_DELAY\": 5,\n    \"MAX_WEBHOOK_DELAY\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/native/env",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"native",
+								"env"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"tests[\"Status should be 201\"] = responseCode.code == 201;",
+									"tests[\"Response has id\"] = jsonData.id !== undefined;",
+									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
+									"",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set('USER_ID', jsonData.id);",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const email = pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase();",
+									"const username = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
+									"const password = pm.variables.replaceIn(\"{{$randomPassword}}\").toLowerCase();",
+									"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
+									"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
+									"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
+									"",
+									"pm.collectionVariables.set('USER_EMAIL', email);",
+									"pm.collectionVariables.set('USER_USERNAME', username);",
+									"pm.collectionVariables.set('USER_PASSWORD', password);",
+									"pm.collectionVariables.set('USER_DNI', dni);",
+									"pm.collectionVariables.set('USER_FULLNAME', fullname);",
+									"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{USER_EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/users",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generación de token usuario 2 en estado VERIFICADO",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"tests[\"Status should be 200\"] = responseCode.code == 200;",
+									"tests[\"Response has id\"] = jsonData.id !== undefined;",
+									"tests[\"Response has token\"] = jsonData.token !== undefined;",
+									"tests[\"Response has expireAt\"] = jsonData.expireAt !== undefined;",
+									"",
+									"if(jsonData.token) {",
+									"    pm.collectionVariables.set('USER_TOKEN', jsonData.token);",
+									"}",
+									"",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set('USER_ID', jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(function(){}, 10000);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{INGRESS_PATH}}/users/auth",
+							"protocol": "http",
+							"host": [
+								"{{INGRESS_PATH}}"
+							],
+							"path": [
+								"users",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
 				{
 					"name": "Consulta de salud del servicio",
 					"event": [
