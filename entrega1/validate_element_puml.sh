@@ -34,9 +34,9 @@ for OPTION in "$@"; do
 done
 
 if [ $FOUND -eq 1 ]; then
-  echo "Element was found in PUML file."
+  echo "Element was found in $PUML_FILE file."
   exit 0
 else
-  echo "Element was not found in PUML file"
+  echo "Element was not found in $PUML_FILE file"
   exit 1
 fi
