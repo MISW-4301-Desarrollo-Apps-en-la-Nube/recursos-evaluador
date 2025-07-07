@@ -3,15 +3,19 @@
 set -e
 
 # Lista de Pods esperados
-EXPECTED_PODS=("users_app" "offers_app" "posts_app" "routes_app" "users_db" "offers_db" "posts_db" "routes_db")
+EXPECTED_PODS=("users-app" "offers-app" "posts-app" "routes-app" "users-db" "offers-db" "posts-db" "routes-db")
 
 # Mapa de servicios esperados y su Pod target
 declare -A EXPECTED_SERVICES
 EXPECTED_SERVICES=( 
-    ["users_service"]="users_app"
-    ["offers_service"]="offers_app"
-    ["posts_service"]="posts_app"
-    ["routes_service"]="routes_app"
+    ["users-app-service"]="users-app"
+    ["offers-app-service"]="offers-app"
+    ["posts-app-service"]="posts-app"
+    ["routes-app-service"]="routes-app"
+    ["users-db-service"]="users-db"
+    ["offers-db-service"]="offers-db"
+    ["posts-db-service"]="posts-db"
+    ["routes-db-service"]="routes-db"
 )
 
 TOTAL_PODS=${#EXPECTED_PODS[@]}
@@ -27,15 +31,6 @@ for POD in "${EXPECTED_PODS[@]}"; do
     fi
 done
 
-PODS_PERCENT=$(( 100 * FOUND_PODS / TOTAL_PODS ))
-echo "Pods found: $FOUND_PODS/$TOTAL_PODS -> ${PODS_PERCENT}%"
-
-if [ $FOUND_PODS -lt $TOTAL_PODS ]; then
-    echo "❌ Not all expected pods are running."
-    exit 1
-fi
-
-echo ""
 echo "✅ Checking expected services and their targets..."
 TOTAL_SERVICES=${#EXPECTED_SERVICES[@]}
 FOUND_SERVICES=0
@@ -60,11 +55,14 @@ for SERVICE in "${!EXPECTED_SERVICES[@]}"; do
     fi
 done
 
-SERVICES_PERCENT=$(( 100 * FOUND_SERVICES / TOTAL_SERVICES ))
-echo "Services correctly configured: $FOUND_SERVICES/$TOTAL_SERVICES -> ${SERVICES_PERCENT}%"
+TOTAL_FOUND=$(( FOUND_PODS + FOUND_SERVICES ))
+TOTAL_COMPONENTS=$(( TOTAL_PODS + TOTAL_SERVICES ))
 
-if [ $FOUND_SERVICES -lt $TOTAL_SERVICES ]; then
-    echo "❌ Some services are missing or misconfigured."
+COMPONENTS_PERCENT=$(( TOTAL_FOUND / TOTAL_COMPONENTS * 100 ))
+echo "Components correctly configured: ${COMPONENTS_PERCENT}%"
+
+if [ $TOTAL_FOUND -lt $TOTAL_COMPONENTS ]; then
+    echo "❌ Not all components are correctly configured."
     exit 1
 fi
 
