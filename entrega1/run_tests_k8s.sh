@@ -5,7 +5,7 @@ echo "------------------Enabling services------------------"
 
 ENV_VARS=()
 
-SERVICE = "users-app-service"
+SERVICE="users-app-service"
 
 if kubectl get svc "$SERVICE" >/dev/null 2>&1;
   SELECTOR=$(kubectl get svc "$SERVICE" -o jsonpath='{.spec.selector.app}')
