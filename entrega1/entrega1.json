@@ -7,6 +7,816 @@
 	},
 	"item": [
 		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Reset",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users/reset",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de usuarios",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"tests[\"Response has id\"] = jsonData.id !== undefined;",
+									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
+									"",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set('USER_ID', jsonData.id);",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const email = pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase();",
+									"const username = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
+									"const password = pm.variables.replaceIn(\"{{$randomPassword}}\").toLowerCase();",
+									"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
+									"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
+									"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
+									"",
+									"pm.collectionVariables.set('USER_EMAIL', email);",
+									"pm.collectionVariables.set('USER_USERNAME', username);",
+									"pm.collectionVariables.set('USER_PASSWORD', password);",
+									"pm.collectionVariables.set('USER_DNI', dni);",
+									"pm.collectionVariables.set('USER_FULLNAME', fullname);",
+									"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{USER_EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de usuarios que ya existe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 412\", function () {",
+									"    pm.response.to.have.status(412);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{USER_EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de usuarios campos faltantes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullName\": \"{{USER_FULLNAME}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizacion de un usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"tests[\"Response has msg\"] = jsonData.msg === 'el usuario ha sido actualizado';"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const STATUSES = [\"POR_VERIFICAR\", \"NO_VERIFICADO\", \"VERIFICADO\"];",
+									"",
+									"const status = STATUSES[Math.floor(Math.random() * STATUSES.length)];",
+									"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
+									"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
+									"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
+									"",
+									"pm.collectionVariables.set('USER_STATUS', status);",
+									"pm.collectionVariables.set('USER_DNI', dni);",
+									"pm.collectionVariables.set('USER_FULLNAME', fullname);",
+									"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"{{USER_STATUS}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{USERS_PATH}}/users/{{USER_ID}}",
+							"protocol": "http",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"{{USER_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizacion de un usuario sin campos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users/{{USER_ID}}",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"{{USER_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizacion de un usuario campos invalidos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{USER_EMAIL}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users/{{USER_ID}}",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"{{USER_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizacion de un usuario que no existe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"{{USER_STATUS}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users/bf8792d2-3097-11ee-be56-0242ac120002",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"bf8792d2-3097-11ee-be56-0242ac120002"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generación de token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"tests[\"Response has id\"] = jsonData.id !== undefined;",
+									"tests[\"Response has token\"] = jsonData.token !== undefined;",
+									"tests[\"Response has expireAt\"] = jsonData.expireAt !== undefined;",
+									"",
+									"if(jsonData.token) {",
+									"    pm.collectionVariables.set('USER_TOKEN', jsonData.token);",
+									"}",
+									"",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set('USER_ID', jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users/auth",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generación de token credenciales invalidas",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}wrong\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users/auth",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generación de token usuario no existe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"fake\",\n    \"password\": \"fake\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users/auth",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generación de token campos faltantes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{USERS_PATH}}/users/auth",
+							"protocol": "http",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar información del usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"tests[\"Response has id\"] = jsonData.id !== undefined;",
+									"tests[\"Response has username\"] = jsonData.username !== undefined;",
+									"tests[\"Response has email\"] = jsonData.email !== undefined;",
+									"tests[\"Response has fullName\"] = jsonData.fullName !== undefined;",
+									"tests[\"Response has dni\"] = jsonData.dni !== undefined;",
+									"tests[\"Response has phoneNumber\"] = jsonData.phoneNumber !== undefined;",
+									"tests[\"Response has status\"] = jsonData.status !== undefined;",
+									"",
+									"tests[\"ID has correct value\"] = jsonData.id.toString() === pm.collectionVariables.get(\"USER_ID\");",
+									"tests[\"Username has correct value\"] = jsonData.username.toString() === pm.collectionVariables.get(\"USER_USERNAME\");",
+									"tests[\"Email has correct value\"] = jsonData.email.toString() === pm.collectionVariables.get(\"USER_EMAIL\");",
+									"tests[\"Fullname has correct value\"] = jsonData.fullName.toString() === pm.collectionVariables.get(\"USER_FULLNAME\");",
+									"tests[\"DNI has correct value\"] = jsonData.dni.toString() === pm.collectionVariables.get(\"USER_DNI\");",
+									"tests[\"Phonenumber has correct value\"] = jsonData.phoneNumber.toString() === pm.collectionVariables.get(\"USER_PHONENUMBER\");",
+									"tests[\"Status has correct value\"] = jsonData.status.toString() === pm.collectionVariables.get(\"USER_STATUS\");",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users/me",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar información del usuario sin token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users/me",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar información del usuario token invalido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}fake",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{USERS_PATH}}/users/me",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consulta de salud del servicio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{USERS_PATH}}/users/ping",
+							"host": [
+								"{{USERS_PATH}}"
+							],
+							"path": [
+								"users",
+								"ping"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Routes",
 			"item": [
 				{
@@ -16,8 +826,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"console.log(pm.response.text())",
 									"pm.test(\"Status code is 200\", function () {",
-									"    console.log(pm.response.text())",
 									"    pm.response.to.have.status(200);",
 									"});",
 									""
@@ -43,8 +853,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes/reset",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes/reset",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -65,8 +874,10 @@
 								"exec": [
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
+									"pm.test(\"Status code is 412\", function () {",
+									"    pm.response.to.have.status(412);",
+									"});",
 									"",
-									"tests[\"Status should be 412\"] = responseCode.code == 412;",
 									"tests[\"Response has msg\"] = jsonData.msg === 'Las fechas del trayecto no son válidas';",
 									""
 								],
@@ -123,8 +934,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -145,7 +955,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 412\"] = responseCode.code == 412;",
+									"pm.test(\"Status code is 412\", function () {",
+									"    pm.response.to.have.status(412);",
+									"});",
 									"tests[\"Response has msg\"] = jsonData.msg === 'Las fechas del trayecto no son válidas';"
 								],
 								"type": "text/javascript",
@@ -169,8 +981,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -191,7 +1002,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 412\"] = responseCode.code == 412;",
+									"pm.test(\"Status code is 412\", function () {",
+									"    pm.response.to.have.status(412);",
+									"});",
 									"tests[\"Response has msg\"] = jsonData.msg === 'Las fechas del trayecto no son válidas';"
 								],
 								"type": "text/javascript",
@@ -215,8 +1028,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -237,7 +1049,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 201\"] = responseCode.code == 201;",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
 									"tests[\"Response has id\"] = jsonData.id !== undefined;",
 									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
 									"",
@@ -299,8 +1113,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -319,7 +1132,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 412\"] = responseCode.code == 412;"
+									"pm.test(\"Status code is 412\", function () {",
+									"    pm.response.to.have.status(412);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -352,8 +1167,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -372,7 +1186,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;"
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -395,8 +1211,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -417,7 +1232,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"One route should be present\"] = jsonData.length === 1;",
 									"",
 									"let route = jsonData[0];",
@@ -456,8 +1273,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -478,7 +1294,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"One route should be present\"] = jsonData.length === 1;",
 									"",
 									"let route = jsonData[0];",
@@ -517,8 +1335,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes?flight={{ROUTE_FLIGHTID}}",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes?flight={{ROUTE_FLIGHTID}}",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -544,8 +1361,9 @@
 								"exec": [
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"No routes should be present\"] = jsonData.length === 0;"
 								],
 								"type": "text/javascript",
@@ -572,8 +1390,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes?flight={{ROUTE_FLIGHTID}}fake",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes?flight={{ROUTE_FLIGHTID}}fake",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -600,7 +1417,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"",
 									"tests[\"Route should have correct id\"] = jsonData.id === pm.collectionVariables.get(\"ROUTE_ID\");",
 									"tests[\"Route should have flightId\"] = jsonData.flightId !== undefined;",
@@ -637,8 +1456,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes/{{ROUTE_ID}}",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes/{{ROUTE_ID}}",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -658,7 +1476,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code === 400;"
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -684,8 +1504,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes/1",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes/1",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -705,7 +1524,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code === 404;"
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -731,8 +1552,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes/bf8792d2-3097-11ee-be56-0242ac120002",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes/bf8792d2-3097-11ee-be56-0242ac120002",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -752,7 +1572,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code === 400;",
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
 									""
 								],
 								"type": "text/javascript",
@@ -776,8 +1598,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes/1",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes/1",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -799,7 +1620,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"Should have msg\"] = jsonData.msg === \"el trayecto fue eliminado\";",
 									""
 								],
@@ -824,8 +1647,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes/{{ROUTE_ID}}",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes/{{ROUTE_ID}}",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -845,8 +1667,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code === 404;",
-									""
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -869,8 +1692,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes/bf8792d2-3097-11ee-be56-0242ac120002",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes/bf8792d2-3097-11ee-be56-0242ac120002",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -890,7 +1712,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;"
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -904,8 +1728,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{ROUTES_PATH}}/routes/ping",
-							"protocol": "http",
+							"raw": "{{ROUTES_PATH}}/routes/ping",
 							"host": [
 								"{{ROUTES_PATH}}"
 							],
@@ -929,8 +1752,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"console.log(pm.response.text())",
 									"pm.test(\"Status code is 200\", function () {",
-									"    console.log(pm.response.text())",
 									"    pm.response.to.have.status(200);",
 									"});",
 									""
@@ -956,8 +1779,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts/reset",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts/reset",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -979,7 +1801,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 201\"] = responseCode.code == 201;",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
 									"tests[\"Response has id\"] = jsonData.id !== undefined;",
 									"tests[\"Response has userId\"] = jsonData.userId !== undefined;",
 									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
@@ -1027,8 +1851,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1047,7 +1870,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;"
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1080,8 +1905,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1102,7 +1926,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 412\"] = responseCode.code == 412;",
+									"pm.test(\"Status code is 412\", function () {",
+									"    pm.response.to.have.status(412);",
+									"});",
 									"tests[\"Response has msg\"] = jsonData.msg === 'La fecha expiración no es válida';"
 								],
 								"type": "text/javascript",
@@ -1136,8 +1962,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1158,7 +1983,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"One post should be present\"] = jsonData.length === 1;",
 									"",
 									"let post = jsonData[0];",
@@ -1193,8 +2020,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1215,7 +2041,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"One post should be present\"] = jsonData.length === 1;",
 									"",
 									"let post = jsonData[0];",
@@ -1250,8 +2078,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts?expire=false",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts?expire=false",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1276,7 +2103,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;"
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1302,8 +2131,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts?expire=invalid",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts?expire=invalid",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1330,7 +2158,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									" pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"One post should be present\"] = jsonData.length === 1;",
 									"",
 									"let post = jsonData[0];",
@@ -1364,8 +2194,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts?route={{ROUTE_ID}}",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts?route={{ROUTE_ID}}",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1392,7 +2221,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"One post should be present\"] = jsonData.length === 1;",
 									"",
 									"let post = jsonData[0];",
@@ -1426,8 +2257,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts?owner=me",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts?owner=me",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1454,7 +2284,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"No post should be present\"] = jsonData.length === 0;"
 								],
 								"type": "text/javascript",
@@ -1481,8 +2313,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts?owner=bf8792d2-3097-11ee-be56-0242ac120002",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts?owner=bf8792d2-3097-11ee-be56-0242ac120002",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1509,7 +2340,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"One post should be present\"] = jsonData.length === 1;",
 									"",
 									"let post = jsonData[0];",
@@ -1543,8 +2376,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts?expire=false&route={{ROUTE_ID}}&owner=me",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts?expire=false&route={{ROUTE_ID}}&owner=me",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1579,7 +2411,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"",
 									"tests[\"Post should match id\"] = jsonData.id === pm.collectionVariables.get(\"POST_ID\");",
 									"tests[\"Post should have routeId\"] = jsonData.routeId !== undefined;",
@@ -1611,8 +2445,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts/{{POST_ID}}",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts/{{POST_ID}}",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1632,7 +2465,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code === 400;"
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1658,8 +2493,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts/1",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts/1",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1679,7 +2513,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code === 404;"
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1705,8 +2541,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts/bf8792d2-3097-11ee-be56-0242ac120002",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts/bf8792d2-3097-11ee-be56-0242ac120002",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1726,7 +2561,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code === 400;",
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
 									""
 								],
 								"type": "text/javascript",
@@ -1750,8 +2587,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts/1",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts/1",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1773,7 +2609,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"Should have msg\"] = jsonData.msg === \"la publicación fue eliminada\";",
 									""
 								],
@@ -1798,8 +2636,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts/{{POST_ID}}",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts/{{POST_ID}}",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1819,7 +2656,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code === 404;",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
 									""
 								],
 								"type": "text/javascript",
@@ -1843,8 +2682,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts/bf8792d2-3097-11ee-be56-0242ac120002",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts/bf8792d2-3097-11ee-be56-0242ac120002",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1864,7 +2702,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;"
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1878,8 +2718,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{POSTS_PATH}}/posts/ping",
-							"protocol": "http",
+							"raw": "{{POSTS_PATH}}/posts/ping",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -1903,8 +2742,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"console.log(pm.response.text())",
 									"pm.test(\"Status code is 200\", function () {",
-									"    console.log(pm.response.text())",
 									"    pm.response.to.have.status(200);",
 									"});"
 								],
@@ -1929,8 +2768,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers/reset",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers/reset",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -1952,7 +2790,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 201\"] = responseCode.code == 201;",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
 									"tests[\"Response has id\"] = jsonData.id !== undefined;",
 									"tests[\"Response has userId\"] = jsonData.userId !== undefined;",
 									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
@@ -2006,8 +2846,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2026,7 +2865,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;"
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2059,8 +2900,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2079,7 +2919,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 412\"] = responseCode.code == 412;"
+									"pm.test(\"Status code is 412\", function () {",
+									"    pm.response.to.have.status(412);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2112,8 +2954,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2132,7 +2973,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 412\"] = responseCode.code == 412;"
+									"pm.test(\"Status code is 412\", function () {",
+									"    pm.response.to.have.status(412);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2165,8 +3008,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2187,7 +3029,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"One offer should be present\"] = jsonData.length === 1;",
 									"",
 									"let offer = jsonData[0];",
@@ -2225,8 +3069,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2247,7 +3090,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"One offer should be present\"] = jsonData.length === 1;",
 									"",
 									"let offer = jsonData[0];",
@@ -2284,8 +3129,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers?post={{POST_ID}}",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers?post={{POST_ID}}",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2312,7 +3156,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"One offer should be present\"] = jsonData.length === 1;",
 									"",
 									"let offer = jsonData[0];",
@@ -2349,8 +3195,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers?owner=me",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers?owner=me",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2377,7 +3222,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"No offer should be present\"] = jsonData.length === 0;"
 								],
 								"type": "text/javascript",
@@ -2404,8 +3251,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers?owner=bf8792d2-3097-11ee-be56-0242ac120002",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers?owner=bf8792d2-3097-11ee-be56-0242ac120002",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2432,7 +3278,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"One offer should be present\"] = jsonData.length === 1;",
 									"",
 									"let offer = jsonData[0];",
@@ -2469,8 +3317,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers?post={{POST_ID}}&owner=me",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers?post={{POST_ID}}&owner=me",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2501,7 +3348,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"",
 									"tests[\"Offer should match id\"] = jsonData.id === pm.collectionVariables.get(\"OFFER_ID\");",
 									"tests[\"Offer should have postId\"] = jsonData.postId !== undefined;",
@@ -2536,8 +3385,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers/{{OFFER_ID}}",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers/{{OFFER_ID}}",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2557,7 +3405,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code === 400;"
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2583,8 +3433,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers/1",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers/1",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2604,7 +3453,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code === 404;"
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2630,8 +3481,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers/bf8792d2-3097-11ee-be56-0242ac120002",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers/bf8792d2-3097-11ee-be56-0242ac120002",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2651,7 +3501,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code === 400;",
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
 									""
 								],
 								"type": "text/javascript",
@@ -2675,8 +3527,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers/1",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers/1",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2698,7 +3549,9 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code === 200;",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
 									"tests[\"Should have msg\"] = jsonData.msg === \"la oferta fue eliminada\";",
 									""
 								],
@@ -2723,8 +3576,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers/{{OFFER_ID}}",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers/{{OFFER_ID}}",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2744,7 +3596,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code === 404;",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
 									""
 								],
 								"type": "text/javascript",
@@ -2768,8 +3622,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers/bf8792d2-3097-11ee-be56-0242ac120002",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers/bf8792d2-3097-11ee-be56-0242ac120002",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
@@ -2789,7 +3642,9 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;"
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2803,1592 +3658,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{OFFERS_PATH}}/offers/ping",
-							"protocol": "http",
+							"raw": "{{OFFERS_PATH}}/offers/ping",
 							"host": [
 								"{{OFFERS_PATH}}"
 							],
 							"path": [
 								"offers",
-								"ping"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Users",
-			"item": [
-				{
-					"name": "Reset",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    console.log(pm.response.text())",
-									"    pm.response.to.have.status(200);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/reset",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"reset"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creación de usuarios",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 201\"] = responseCode.code == 201;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
-									"",
-									"if(jsonData.id) {",
-									"    pm.collectionVariables.set('USER_ID', jsonData.id);",
-									"}",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const email = pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase();",
-									"const username = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
-									"const password = pm.variables.replaceIn(\"{{$randomPassword}}\").toLowerCase();",
-									"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
-									"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
-									"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
-									"",
-									"pm.collectionVariables.set('USER_EMAIL', email);",
-									"pm.collectionVariables.set('USER_USERNAME', username);",
-									"pm.collectionVariables.set('USER_PASSWORD', password);",
-									"pm.collectionVariables.set('USER_DNI', dni);",
-									"pm.collectionVariables.set('USER_FULLNAME', fullname);",
-									"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{USER_EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creación de usuarios que ya existe",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 412\"] = responseCode.code == 412;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{USER_EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creación de usuarios campos faltantes",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"fullName\": \"{{USER_FULLNAME}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Actualizacion de un usuario",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;",
-									"tests[\"Response has msg\"] = jsonData.msg === 'el usuario ha sido actualizado';"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const STATUSES = [\"POR_VERIFICAR\", \"NO_VERIFICADO\", \"VERIFICADO\"];",
-									"",
-									"const status = STATUSES[Math.floor(Math.random() * STATUSES.length)];",
-									"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
-									"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
-									"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
-									"",
-									"pm.collectionVariables.set('USER_STATUS', status);",
-									"pm.collectionVariables.set('USER_DNI', dni);",
-									"pm.collectionVariables.set('USER_FULLNAME', fullname);",
-									"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"{{USER_STATUS}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/{{USER_ID}}",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"{{USER_ID}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Actualizacion de un usuario sin campos",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/{{USER_ID}}",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"{{USER_ID}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Actualizacion de un usuario campos invalidos",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"{{USER_EMAIL}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/{{USER_ID}}",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"{{USER_ID}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Actualizacion de un usuario que no existe",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code == 404;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"{{USER_STATUS}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/bf8792d2-3097-11ee-be56-0242ac120002",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"bf8792d2-3097-11ee-be56-0242ac120002"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Generación de token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has token\"] = jsonData.token !== undefined;",
-									"tests[\"Response has expireAt\"] = jsonData.expireAt !== undefined;",
-									"",
-									"if(jsonData.token) {",
-									"    pm.collectionVariables.set('USER_TOKEN', jsonData.token);",
-									"}",
-									"",
-									"if(jsonData.id) {",
-									"    pm.collectionVariables.set('USER_ID', jsonData.id);",
-									"}"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/auth",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"auth"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Generación de token credenciales invalidas",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code == 404;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}wrong\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/auth",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"auth"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Generación de token usuario no existe",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code == 404;"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"fake\",\n    \"password\": \"fake\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/auth",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"auth"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Generación de token campos faltantes",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/auth",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"auth"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Consultar información del usuario",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;",
-									"",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has username\"] = jsonData.username !== undefined;",
-									"tests[\"Response has email\"] = jsonData.email !== undefined;",
-									"tests[\"Response has fullName\"] = jsonData.fullName !== undefined;",
-									"tests[\"Response has dni\"] = jsonData.dni !== undefined;",
-									"tests[\"Response has phoneNumber\"] = jsonData.phoneNumber !== undefined;",
-									"tests[\"Response has status\"] = jsonData.status !== undefined;",
-									"",
-									"tests[\"ID has correct value\"] = jsonData.id.toString() === pm.collectionVariables.get(\"USER_ID\");",
-									"tests[\"Username has correct value\"] = jsonData.username.toString() === pm.collectionVariables.get(\"USER_USERNAME\");",
-									"tests[\"Email has correct value\"] = jsonData.email.toString() === pm.collectionVariables.get(\"USER_EMAIL\");",
-									"tests[\"Fullname has correct value\"] = jsonData.fullName.toString() === pm.collectionVariables.get(\"USER_FULLNAME\");",
-									"tests[\"DNI has correct value\"] = jsonData.dni.toString() === pm.collectionVariables.get(\"USER_DNI\");",
-									"tests[\"Phonenumber has correct value\"] = jsonData.phoneNumber.toString() === pm.collectionVariables.get(\"USER_PHONENUMBER\");",
-									"tests[\"Status has correct value\"] = jsonData.status.toString() === pm.collectionVariables.get(\"USER_STATUS\");",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/me",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"me"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Consultar información del usuario sin token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 403\"] = responseCode.code == 403;"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/me",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"me"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Consultar información del usuario token invalido",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 401\"] = responseCode.code == 401;"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}fake",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/me",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"me"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Consulta de salud del servicio",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/ping",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"ping"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Reset",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    console.log(pm.response.text())",
-									"    pm.response.to.have.status(200);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/reset",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"reset"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creación de usuarios",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 201\"] = responseCode.code == 201;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
-									"",
-									"if(jsonData.id) {",
-									"    pm.collectionVariables.set('USER_ID', jsonData.id);",
-									"}",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const email = pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase();",
-									"const username = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
-									"const password = pm.variables.replaceIn(\"{{$randomPassword}}\").toLowerCase();",
-									"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
-									"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
-									"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
-									"",
-									"pm.collectionVariables.set('USER_EMAIL', email);",
-									"pm.collectionVariables.set('USER_USERNAME', username);",
-									"pm.collectionVariables.set('USER_PASSWORD', password);",
-									"pm.collectionVariables.set('USER_DNI', dni);",
-									"pm.collectionVariables.set('USER_FULLNAME', fullname);",
-									"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{USER_EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creación de usuarios que ya existe",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 412\"] = responseCode.code == 412;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{USER_EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creación de usuarios campos faltantes",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"fullName\": \"{{USER_FULLNAME}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Actualizacion de un usuario",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;",
-									"tests[\"Response has msg\"] = jsonData.msg === 'el usuario ha sido actualizado';"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const STATUSES = [\"POR_VERIFICAR\", \"NO_VERIFICADO\", \"VERIFICADO\"];",
-									"",
-									"const status = STATUSES[Math.floor(Math.random() * STATUSES.length)];",
-									"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
-									"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
-									"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
-									"",
-									"pm.collectionVariables.set('USER_STATUS', status);",
-									"pm.collectionVariables.set('USER_DNI', dni);",
-									"pm.collectionVariables.set('USER_FULLNAME', fullname);",
-									"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"{{USER_STATUS}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/{{USER_ID}}",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"{{USER_ID}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Actualizacion de un usuario sin campos",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/{{USER_ID}}",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"{{USER_ID}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Actualizacion de un usuario campos invalidos",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"{{USER_EMAIL}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/{{USER_ID}}",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"{{USER_ID}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Actualizacion de un usuario que no existe",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code == 404;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"{{USER_STATUS}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/bf8792d2-3097-11ee-be56-0242ac120002",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"bf8792d2-3097-11ee-be56-0242ac120002"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Generación de token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has token\"] = jsonData.token !== undefined;",
-									"tests[\"Response has expireAt\"] = jsonData.expireAt !== undefined;",
-									"",
-									"if(jsonData.token) {",
-									"    pm.collectionVariables.set('USER_TOKEN', jsonData.token);",
-									"}",
-									"",
-									"if(jsonData.id) {",
-									"    pm.collectionVariables.set('USER_ID', jsonData.id);",
-									"}"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/auth",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"auth"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Generación de token credenciales invalidas",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code == 404;",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}wrong\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/auth",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"auth"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Generación de token usuario no existe",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 404\"] = responseCode.code == 404;"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"fake\",\n    \"password\": \"fake\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/auth",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"auth"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Generación de token campos faltantes",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 400\"] = responseCode.code == 400;"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/auth",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"auth"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Consultar información del usuario",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;",
-									"",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has username\"] = jsonData.username !== undefined;",
-									"tests[\"Response has email\"] = jsonData.email !== undefined;",
-									"tests[\"Response has fullName\"] = jsonData.fullName !== undefined;",
-									"tests[\"Response has dni\"] = jsonData.dni !== undefined;",
-									"tests[\"Response has phoneNumber\"] = jsonData.phoneNumber !== undefined;",
-									"tests[\"Response has status\"] = jsonData.status !== undefined;",
-									"",
-									"tests[\"ID has correct value\"] = jsonData.id.toString() === pm.collectionVariables.get(\"USER_ID\");",
-									"tests[\"Username has correct value\"] = jsonData.username.toString() === pm.collectionVariables.get(\"USER_USERNAME\");",
-									"tests[\"Email has correct value\"] = jsonData.email.toString() === pm.collectionVariables.get(\"USER_EMAIL\");",
-									"tests[\"Fullname has correct value\"] = jsonData.fullName.toString() === pm.collectionVariables.get(\"USER_FULLNAME\");",
-									"tests[\"DNI has correct value\"] = jsonData.dni.toString() === pm.collectionVariables.get(\"USER_DNI\");",
-									"tests[\"Phonenumber has correct value\"] = jsonData.phoneNumber.toString() === pm.collectionVariables.get(\"USER_PHONENUMBER\");",
-									"tests[\"Status has correct value\"] = jsonData.status.toString() === pm.collectionVariables.get(\"USER_STATUS\");",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/me",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"me"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Consultar información del usuario sin token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 403\"] = responseCode.code == 403;"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/me",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"me"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Consultar información del usuario token invalido",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 401\"] = responseCode.code == 401;"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}fake",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/me",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
-								"me"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Consulta de salud del servicio",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://{{USERS_PATH}}/users/ping",
-							"protocol": "http",
-							"host": [
-								"{{USERS_PATH}}"
-							],
-							"path": [
-								"users",
 								"ping"
 							]
 						}
@@ -4421,22 +3696,22 @@
 	"variable": [
 		{
 			"key": "USERS_PATH",
-			"value": "localhost:3000",
+			"value": "http://localhost:3000",
 			"type": "string"
 		},
 		{
 			"key": "ROUTES_PATH",
-			"value": "localhost:3002",
+			"value": "http://localhost:3002",
 			"type": "string"
 		},
 		{
 			"key": "POSTS_PATH",
-			"value": "localhost:3001",
+			"value": "http://localhost:3001",
 			"type": "string"
 		},
 		{
 			"key": "OFFERS_PATH",
-			"value": "localhost:3003",
+			"value": "http://localhost:3003",
 			"type": "string"
 		}
 	]
