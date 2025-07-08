@@ -184,8 +184,8 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"pm.test(\"Status code is 422\", function () {",
-									"    pm.response.to.have.status(422);",
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
 									"});",
 									""
 								],
@@ -3734,6 +3734,14 @@
 		},
 		{
 			"key": "USER_PHONENUMBER",
+			"value": ""
+		},
+		{
+			"key": "USER_ID",
+			"value": ""
+		},
+		{
+			"key": "USER_TOKEN",
 			"value": ""
 		}
 	]
