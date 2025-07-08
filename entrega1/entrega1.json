@@ -184,8 +184,8 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"pm.test(\"Status code is 400\", function () {",
-									"    pm.response.to.have.status(400);",
+									"pm.test(\"Status code is 422\", function () {",
+									"    pm.response.to.have.status(422);",
 									"});",
 									""
 								],
@@ -272,8 +272,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{USERS_PATH}}/users/{{USER_ID}}",
-							"protocol": "http",
+							"raw": "{{USERS_PATH}}/users/{{USER_ID}}",
 							"host": [
 								"{{USERS_PATH}}"
 							],
@@ -293,8 +292,8 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"pm.test(\"Status code is 400\", function () {",
-									"    pm.response.to.have.status(400);",
+									"pm.test(\"Status code is 422\", function () {",
+									"    pm.response.to.have.status(422);",
 									"});",
 									""
 								],
@@ -346,8 +345,8 @@
 							"script": {
 								"exec": [
 									"console.log(pm.response.text())",
-									"pm.test(\"Status code is 400\", function () {",
-									"    pm.response.to.have.status(400);",
+									"pm.test(\"Status code is 422\", function () {",
+									"    pm.response.to.have.status(422);",
 									"});",
 									""
 								],
@@ -594,8 +593,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{USERS_PATH}}/users/auth",
-							"protocol": "http",
+							"raw": "{{USERS_PATH}}/users/auth",
 							"host": [
 								"{{USERS_PATH}}"
 							],
@@ -3713,6 +3711,30 @@
 			"key": "OFFERS_PATH",
 			"value": "http://localhost:3003",
 			"type": "string"
+		},
+		{
+			"key": "USER_EMAIL",
+			"value": ""
+		},
+		{
+			"key": "USER_USERNAME",
+			"value": ""
+		},
+		{
+			"key": "USER_PASSWORD",
+			"value": ""
+		},
+		{
+			"key": "USER_DNI",
+			"value": ""
+		},
+		{
+			"key": "USER_FULLNAME",
+			"value": ""
+		},
+		{
+			"key": "USER_PHONENUMBER",
+			"value": ""
 		}
 	]
 }
