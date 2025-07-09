@@ -918,7 +918,14 @@
 					],
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
@@ -965,7 +972,14 @@
 					],
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
@@ -1012,7 +1026,14 @@
 					],
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
@@ -1097,7 +1118,118 @@
 					],
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"flightId\": \"{{ROUTE_FLIGHTID}}\",\n    \"sourceAirportCode\": \"{{ROUTE_SOURCEAIRPORTCODE}}\",\n    \"sourceCountry\": \"{{ROUTE_SOURCECOUNTRY}}\",\n    \"destinyAirportCode\": \"{{ROUTE_DESTINYAIRPORTCODE}}\",\n    \"destinyCountry\": \"{{ROUTE_DESTINYCOUNTRY}}\",\n    \"bagCost\": {{ROUTE_BAGCOST}},\n    \"plannedStartDate\": \"{{ROUTE_PLANNEDSTARTDATE}}\",\n    \"plannedEndDate\": \"{{ROUTE_PLANNEDENDDATE}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ROUTES_PATH}}/routes",
+							"host": [
+								"{{ROUTES_PATH}}"
+							],
+							"path": [
+								"routes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de trayecto sin token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"flightId\": \"{{ROUTE_FLIGHTID}}\",\n    \"sourceAirportCode\": \"{{ROUTE_SOURCEAIRPORTCODE}}\",\n    \"sourceCountry\": \"{{ROUTE_SOURCECOUNTRY}}\",\n    \"destinyAirportCode\": \"{{ROUTE_DESTINYAIRPORTCODE}}\",\n    \"destinyCountry\": \"{{ROUTE_DESTINYCOUNTRY}}\",\n    \"bagCost\": {{ROUTE_BAGCOST}},\n    \"plannedStartDate\": \"{{ROUTE_PLANNEDSTARTDATE}}\",\n    \"plannedEndDate\": \"{{ROUTE_PLANNEDENDDATE}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ROUTES_PATH}}/routes",
+							"host": [
+								"{{ROUTES_PATH}}"
+							],
+							"path": [
+								"routes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de trayecto token inválido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "invalidtoken",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
@@ -1151,7 +1283,14 @@
 					],
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
@@ -1195,7 +1334,14 @@
 					],
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
@@ -1257,7 +1403,14 @@
 					},
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
@@ -1319,7 +1472,14 @@
 					},
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
@@ -1374,7 +1534,14 @@
 					},
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
@@ -1399,6 +1566,135 @@
 								{
 									"key": "flight",
 									"value": "{{ROUTE_FLIGHTID}}fake"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar trayectos filtro owner me",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"tests[\"One route should be present\"] = jsonData.length === 1;",
+									"",
+									"let route = jsonData[0];",
+									"tests[\"Route should have id\"] = route.id !== undefined;",
+									"tests[\"Route should have flightId\"] = route.flightId !== undefined;",
+									"tests[\"Route should have sourceAirportCode\"] = route.sourceAirportCode !== undefined;",
+									"tests[\"Route should have sourceCountry\"] = route.sourceCountry !== undefined;",
+									"tests[\"Route should have destinyAirportCode\"] = route.destinyAirportCode !== undefined;",
+									"tests[\"Route should have destinyCountry\"] = route.destinyCountry !== undefined;",
+									"tests[\"Route should have bagCost\"] = route.bagCost !== undefined;",
+									"tests[\"Route should have plannedStartDate\"] = route.plannedStartDate !== undefined;",
+									"tests[\"Route should have plannedEndDate\"] = route.plannedEndDate !== undefined;",
+									"tests[\"Route should have createdAt\"] = route.createdAt !== undefined;"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ROUTES_PATH}}/routes?owner=me",
+							"host": [
+								"{{ROUTES_PATH}}"
+							],
+							"path": [
+								"routes"
+							],
+							"query": [
+								{
+									"key": "owner",
+									"value": "me"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar trayectos filtro owner me sin token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"let jsonData = JSON.parse(responseBody);",
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ROUTES_PATH}}/routes?owner=me",
+							"host": [
+								"{{ROUTES_PATH}}"
+							],
+							"path": [
+								"routes"
+							],
+							"query": [
+								{
+									"key": "owner",
+									"value": "me"
 								}
 							]
 						}
@@ -1440,7 +1736,71 @@
 					},
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ROUTES_PATH}}/routes/{{ROUTE_ID}}",
+							"host": [
+								"{{ROUTES_PATH}}"
+							],
+							"path": [
+								"routes",
+								"{{ROUTE_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar trayecto token invalido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"",
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "invalidtoken",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
@@ -1488,7 +1848,14 @@
 					},
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
@@ -1536,7 +1903,14 @@
 					},
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
@@ -1582,7 +1956,14 @@
 					],
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "DELETE",
 						"header": [],
@@ -1603,6 +1984,60 @@
 							"path": [
 								"routes",
 								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar trayecto token inválido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"",
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "invalidtoken",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ROUTES_PATH}}/routes/{{ROUTE_ID}}",
+							"host": [
+								"{{ROUTES_PATH}}"
+							],
+							"path": [
+								"routes",
+								"{{ROUTE_ID}}"
 							]
 						}
 					},
@@ -1631,7 +2066,14 @@
 					],
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "DELETE",
 						"header": [],
@@ -1676,7 +2118,14 @@
 					],
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{USER_TOKEN}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "DELETE",
 						"header": [],
