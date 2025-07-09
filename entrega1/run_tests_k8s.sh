@@ -5,15 +5,23 @@ echo "------------------Enabling services------------------"
 
 ENV_VARS=()
 
-SERVICE="users-app-service"
+SERVICES=("users-app-service" "posts-app-service")
 
-if kubectl get svc "$SERVICE" >/dev/null 2>&1; then
-  SELECTOR=$(kubectl get svc "$SERVICE" -o jsonpath='{.spec.selector.app}')
-  echo "Waiting for pods with selector app=$SELECTOR (from $SERVICE)..."
-  kubectl wait --for=condition=ready pod -l app="$SELECTOR" --timeout=120s
-  URL=$(minikube service "$SERVICE" --url)
-  ENV_VARS+=(--env-var "USERS_PATH=$URL")
-fi
+for SERVICE in "${SERVICES[@]}"; do
+  if kubectl get svc "$SERVICE" >/dev/null 2>&1; then
+    SELECTOR=$(kubectl get svc "$SERVICE" -o jsonpath='{.spec.selector.app}')
+    echo "Waiting for pods with selector app=$SELECTOR (from $SERVICE)..."
+    kubectl wait --for=condition=ready pod -l app="$SELECTOR" --timeout=120s
+    URL=$(minikube service "$SERVICE" --url)
+
+    SERVICE_NAME=$(echo "$SERVICE" | cut -d'-' -f1 | tr '[:lower:]' '[:upper:]')
+    ENV_VARS+=(--env-var "${SERVICE_NAME}_PATH=$URL")
+  else
+    echo "❌ Service $SERVICE not found, skipping..."
+  fi
+done
+
+echo "------------------Execute tests------------------"
 
 if [ ${#ENV_VARS[@]} -gt 0 ]; then
   echo "🚀 Running Newman..."
