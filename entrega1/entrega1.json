@@ -2402,6 +2402,18 @@
 		{
 			"key": "USER_TOKEN",
 			"value": ""
+		},
+		{
+			"key": "POST_ROUTEID",
+			"value": ""
+		},
+		{
+			"key": "POST_EXPIREAT",
+			"value": ""
+		},
+		{
+			"key": "POST_ID",
+			"value": ""
 		}
 	]
 }
