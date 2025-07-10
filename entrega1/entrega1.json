@@ -1835,151 +1835,13 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"routeId\": \"{{POST_ROUTEID}}\",\n    \"expireAt\": \"{{POST_EXPIREAT}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{POSTS_PATH}}/posts",
-							"host": [
-								"{{POSTS_PATH}}"
-							],
-							"path": [
-								"posts"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creación de publicación token invalido",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"",
-									"pm.test(\"Status code is 403\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"let expireAt = new Date();",
-									"(expireAt.setDate(expireAt.getDate() + 7));",
-									"expireAt = expireAt.toISOString();",
-									"",
-									"const routeId = pm.collectionVariables.get(\"ROUTE_ID\");",
-									"",
-									"pm.collectionVariables.set('POST_ROUTEID', routeId);",
-									"pm.collectionVariables.set('POST_EXPIREAT', expireAt);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "invalidtoken",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"routeId\": \"{{POST_ROUTEID}}\",\n    \"expireAt\": \"{{POST_EXPIREAT}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{POSTS_PATH}}/posts",
-							"host": [
-								"{{POSTS_PATH}}"
-							],
-							"path": [
-								"posts"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creación de publicación sin token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"",
-									"pm.test(\"Status code is 403\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"let expireAt = new Date();",
-									"(expireAt.setDate(expireAt.getDate() + 7));",
-									"expireAt = expireAt.toISOString();",
-									"",
-									"const routeId = pm.collectionVariables.get(\"ROUTE_ID\");",
-									"",
-									"pm.collectionVariables.set('POST_ROUTEID', routeId);",
-									"pm.collectionVariables.set('POST_EXPIREAT', expireAt);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
 							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"routeId\": \"{{POST_ROUTEID}}\",\n    \"expireAt\": \"{{POST_EXPIREAT}}\"\n}",
+							"raw": "{\n    \"routeId\": \"{{POST_ROUTEID}}\",\n    \"expireAt\": \"{{POST_EXPIREAT}}\",\n    \"userId\": \"{{USER_ID}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2027,20 +1889,121 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"expireAt\": \"{{POST_EXPIREAT}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{POSTS_PATH}}/posts",
+							"host": [
+								"{{POSTS_PATH}}"
+							],
+							"path": [
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de publicación campos userId invalido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"routeId\": \"{{POST_ROUTEID}}\",\n    \"expireAt\": \"{{POST_EXPIREAT}}\",\n    \"userId\": \"invalidId\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{POSTS_PATH}}/posts",
+							"host": [
+								"{{POSTS_PATH}}"
+							],
+							"path": [
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de publicación campos routeId invalido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())",
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"routeId\": \"invalidId\",\n    \"expireAt\": \"{{POST_EXPIREAT}}\",\n    \"userId\": \"{{USER_ID}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2091,14 +2054,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
@@ -2362,7 +2318,7 @@
 					"response": []
 				},
 				{
-					"name": "Buscar publicaciones mias",
+					"name": "Buscar publicaciones usuario",
 					"event": [
 						{
 							"listen": "test",
@@ -2393,66 +2349,6 @@
 					},
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{POSTS_PATH}}/posts?owner=me",
-							"host": [
-								"{{POSTS_PATH}}"
-							],
-							"path": [
-								"posts"
-							],
-							"query": [
-								{
-									"key": "owner",
-									"value": "me"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Buscar publicaciones mias sin token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"pm.test(\"Status code is 403\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
 							"type": "noauth"
 						},
 						"method": "GET",
@@ -2467,7 +2363,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{POSTS_PATH}}/posts?owner=me",
+							"raw": "{{POSTS_PATH}}/posts?owner={{USER_ID}}",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -2477,7 +2373,7 @@
 							"query": [
 								{
 									"key": "owner",
-									"value": "me"
+									"value": "{{USER_ID}}"
 								}
 							]
 						}
@@ -2485,67 +2381,7 @@
 					"response": []
 				},
 				{
-					"name": "Buscar publicaciones mias token invalido",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"pm.test(\"Status code is 403\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "invalidtoken",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{POSTS_PATH}}/posts?owner=me",
-							"host": [
-								"{{POSTS_PATH}}"
-							],
-							"path": [
-								"posts"
-							],
-							"query": [
-								{
-									"key": "owner",
-									"value": "me"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Buscar publicaciones de otro owner",
+					"name": "Buscar publicaciones de otro usuario",
 					"event": [
 						{
 							"listen": "test",
@@ -2632,14 +2468,7 @@
 					},
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "GET",
 						"header": [],
@@ -2653,7 +2482,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{POSTS_PATH}}/posts?expire=false&route={{ROUTE_ID}}&owner=me",
+							"raw": "{{POSTS_PATH}}/posts?expire=false&route={{ROUTE_ID}}&owner={{USER_ID}}",
 							"host": [
 								"{{POSTS_PATH}}"
 							],
@@ -2671,7 +2500,7 @@
 								},
 								{
 									"key": "owner",
-									"value": "me"
+									"value": "{{USER_ID}}"
 								}
 							]
 						}
@@ -2708,119 +2537,7 @@
 					},
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{POSTS_PATH}}/posts/{{POST_ID}}",
-							"host": [
-								"{{POSTS_PATH}}"
-							],
-							"path": [
-								"posts",
-								"{{POST_ID}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Consultar publicacion sin token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"",
-									"pm.test(\"Status code is 403\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
 							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{POSTS_PATH}}/posts/{{POST_ID}}",
-							"host": [
-								"{{POSTS_PATH}}"
-							],
-							"path": [
-								"posts",
-								"{{POST_ID}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Consultar publicacion token invalido",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"",
-									"pm.test(\"Status code is 403\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "invalidtoken",
-									"type": "string"
-								}
-							]
 						},
 						"method": "GET",
 						"header": [],
@@ -2868,14 +2585,7 @@
 					},
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "GET",
 						"header": [],
@@ -2923,14 +2633,7 @@
 					},
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "GET",
 						"header": [],
@@ -2976,14 +2679,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "DELETE",
 						"header": [],
@@ -3004,105 +2700,6 @@
 							"path": [
 								"posts",
 								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Eliminar publicacion sin token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"",
-									"pm.test(\"Status code is 403\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{POSTS_PATH}}/posts/{{POST_ID}}",
-							"host": [
-								"{{POSTS_PATH}}"
-							],
-							"path": [
-								"posts",
-								"{{POST_ID}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Eliminar publicacion token invalido",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())",
-									"",
-									"pm.test(\"Status code is 403\", function () {",
-									"    pm.response.to.have.status(403);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "invalidtoken",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{POSTS_PATH}}/posts/{{POST_ID}}",
-							"host": [
-								"{{POSTS_PATH}}"
-							],
-							"path": [
-								"posts",
-								"{{POST_ID}}"
 							]
 						}
 					},
@@ -3131,14 +2728,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "DELETE",
 						"header": [],
@@ -3184,14 +2774,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{USER_TOKEN}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "DELETE",
 						"header": [],
