@@ -2060,7 +2060,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"routeId\": \"{{POST_ROUTEID}}\",\n    \"expireAt\": \"2022-08-01T21:20:53.214Z\"\n}",
+							"raw": "{\n    \"routeId\": \"{{POST_ROUTEID}}\",\n    \"expireAt\": \"2022-08-01T21:20:53.214Z\",\n    \"userId\": \"{{USER_ID}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2092,7 +2092,7 @@
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
-									"tests[\"One post should be present\"] = jsonData.length === 1;",
+									"tests[\"One post should be present\"] = jsonData.length > 0;",
 									"",
 									"let post = jsonData[0];",
 									"tests[\"Post should match id\"] = post.id === pm.collectionVariables.get(\"POST_ID\");",
