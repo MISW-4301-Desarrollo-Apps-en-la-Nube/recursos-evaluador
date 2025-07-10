@@ -5,7 +5,7 @@ echo "------------------Enabling services------------------"
 
 ENV_VARS=()
 
-SERVICES=("users-app-service" "posts-app-service")
+SERVICES=("users-app-service" "posts-app-service" "routes-app-service")
 
 for SERVICE in "${SERVICES[@]}"; do
   if kubectl get svc "$SERVICE" >/dev/null 2>&1; then
