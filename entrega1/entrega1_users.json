@@ -892,6 +892,14 @@
 		{
 			"key": "USER_ID",
 			"value": ""
+		},
+		{
+			"key": "USER_STATUS",
+			"value": ""
+		},
+		{
+			"key": "USER_TOKEN",
+			"value": ""
 		}
 	]
 }

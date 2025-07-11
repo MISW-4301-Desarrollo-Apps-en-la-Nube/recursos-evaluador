@@ -84,10 +84,10 @@
 							"const SIZES = [\"LARGE\", \"MEDIUM\", \"SMALL\"];",
 							"const FRAGILE_TYPES = [true, false]",
 							"",
-							"const postId = pm.variables.replaceIn('{{$uuid}}');",
+							"const postId = pm.variables.replaceIn('{{$guid}}');",
 							"pm.collectionVariables.set(\"POST_ID\", postId)",
 							"",
-							"const userId = pm.variables.replaceIn('{{$uuid}}');",
+							"const userId = pm.variables.replaceIn('{{$guid}}');",
 							"pm.collectionVariables.set(\"USER_ID\", userId)",
 							"",
 							"const description = pm.variables.replaceIn(\"{{$randomLoremWords}}\").toLowerCase();",
@@ -1080,6 +1080,38 @@
 			"key": "OFFERS_PATH",
 			"value": "http://localhost:3003",
 			"type": "string"
+		},
+		{
+			"key": "POST_ID",
+			"value": ""
+		},
+		{
+			"key": "USER_ID",
+			"value": ""
+		},
+		{
+			"key": "OFFER_POSTID",
+			"value": ""
+		},
+		{
+			"key": "OFFER_DESCRIPTION",
+			"value": ""
+		},
+		{
+			"key": "OFFER_SIZE",
+			"value": ""
+		},
+		{
+			"key": "OFFER_FRAGILE",
+			"value": ""
+		},
+		{
+			"key": "OFFER_OFFER",
+			"value": ""
+		},
+		{
+			"key": "OFFER_ID",
+			"value": ""
 		}
 	]
 }

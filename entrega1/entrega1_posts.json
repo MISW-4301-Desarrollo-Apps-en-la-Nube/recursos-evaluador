@@ -86,10 +86,10 @@
 							"(expireAt.setDate(expireAt.getDate() + 7));",
 							"expireAt = expireAt.toISOString();",
 							"",
-							"const routeId = pm.variables.replaceIn('{{$uuid}}');",
+							"const routeId = pm.variables.replaceIn('{{$guid}}');",
 							"pm.collectionVariables.set(\"ROUTE_ID\", routeId)",
 							"",
-							"const userId = pm.variables.replaceIn('{{$uuid}}');",
+							"const userId = pm.variables.replaceIn('{{$guid}}');",
 							"pm.collectionVariables.set(\"USER_ID\", userId)",
 							"",
 							"pm.collectionVariables.set('POST_ROUTEID', routeId);",
@@ -1129,6 +1129,26 @@
 			"key": "POSTS_PATH",
 			"value": "http://localhost:3001",
 			"type": "string"
+		},
+		{
+			"key": "ROUTE_ID",
+			"value": ""
+		},
+		{
+			"key": "USER_ID",
+			"value": ""
+		},
+		{
+			"key": "POST_ROUTEID",
+			"value": ""
+		},
+		{
+			"key": "POST_EXPIREAT",
+			"value": ""
+		},
+		{
+			"key": "POST_ID",
+			"value": ""
 		}
 	]
 }
