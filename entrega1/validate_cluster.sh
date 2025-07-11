@@ -83,7 +83,7 @@ TOTAL_FOUND=$(( FOUND_PODS + FOUND_SERVICES + FOUND_DB_DEPLOYMENTS ))
 TOTAL_COMPONENTS=$(( TOTAL_PODS + TOTAL_SERVICES + TOTAL_DB_DEPLOYMENTS ))
 
 COMPONENTS_PERCENT=$(( TOTAL_FOUND * 100 / TOTAL_COMPONENTS ))
-echo "-----------------------------------------------------
+echo "-----------------------------------------------------"
 echo "✅ Summary of checks:"
 echo "🚀 Components correctly configured: ${COMPONENTS_PERCENT}%"
 

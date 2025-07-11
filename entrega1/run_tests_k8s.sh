@@ -1,31 +1,56 @@
 #!/usr/bin/env bash
 set -e
 
-echo "------------------Enabling services------------------"
+INPUT_NAME=$1
+
+# Convert snake_case to kebab-case
+NAME=$(echo "$INPUT_NAME" | cut -d'_' -f1)
+APP_NAME=$(echo "$INPUT_NAME" | tr '_' '-')
+SERVICE_NAME="${APP_NAME}-service"
+DB_NAME="$(echo "$APP_NAME" | cut -d'-' -f1)-db"
+
+APPS=("users-app" "posts-app" "routes-app" "offers-app")
+DBS=("users-db" "posts-db" "routes-db" "offers-db")
+
+echo "------------------Enabling services for ${NAME} ------------------"
 
 ENV_VARS=()
 
-SERVICES=("users-app-service" "posts-app-service" "routes-app-service" "offers-app-service")
+# Check APP service
+if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
+  APP_SELECTOR=$(kubectl get svc "$SERVICE_NAME" -o jsonpath='{.spec.selector.app}')
+  echo "Waiting for APP pods with selector app=$APP_SELECTOR (from $SERVICE_NAME)..."
+  kubectl wait --for=condition=ready pod -l app="$APP_SELECTOR" --timeout=120s
+  
+  APP_URL=$(minikube service "$SERVICE_NAME" --url)
+  SERVICE=$(echo "$SERVICE" | cut -d'-' -f1 | tr '[:lower:]' '[:upper:]')
 
-for SERVICE in "${SERVICES[@]}"; do
-  if kubectl get svc "$SERVICE" >/dev/null 2>&1; then
-    SELECTOR=$(kubectl get svc "$SERVICE" -o jsonpath='{.spec.selector.app}')
-    echo "Waiting for pods with selector app=$SELECTOR (from $SERVICE)..."
-    kubectl wait --for=condition=ready pod -l app="$SELECTOR" --timeout=120s
-    URL=$(minikube service "$SERVICE" --url)
+  # Scale to 0 replicas for other apps and databases
+  for APP in "${APPS[@]}"; do
+    if [ "$APP" != "${APP_NAME}" ]; then
+      if kubectl get deployment "$APP-deployment" >/dev/null 2>&1; then
+        kubectl scale deployment "$APP-deployment" --replicas=0
+      else
+        echo "ℹ️  Deployment $APP-deployment ommitted."
+      fi
+    fi
+  done
 
-    SERVICE_NAME=$(echo "$SERVICE" | cut -d'-' -f1 | tr '[:lower:]' '[:upper:]')
-    ENV_VARS+=(--env-var "${SERVICE_NAME}_PATH=$URL")
-  else
-    echo "❌ Service $SERVICE not found, skipping..."
-  fi
-done
+  for DB in "${DBS[@]}"; do
+    if [ "$DB" != "${DB_NAME}" ]; then
+      if kubectl get deployment "$DB-deployment" >/dev/null 2>&1; then
+        kubectl scale deployment "$DB-deployment" --replicas=0
+      else
+        echo "ℹ️  Deployment $DB-deployment ommitted."
+      fi
+    fi
+  done
 
-echo "------------------Execute tests------------------"
-
-if [ ${#ENV_VARS[@]} -gt 0 ]; then
+  echo "------------------Execute tests------------------"
   echo "🚀 Running Newman..."
-  newman run ".evaluator/entrega1.json" "${ENV_VARS[@]}" --verbose
+  newman run ".evaluator/entrega1_${NAME}.json" --env-var "${SERVICE}_PATH=$APP_URL" --verbose
+
 else
-  echo "❌ No valid services found for Newman run. Exiting."
+  echo "❌ Service $SERVICE_NAME not found."
+  exit 1
 fi
