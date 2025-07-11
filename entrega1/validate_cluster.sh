@@ -90,6 +90,6 @@ echo "🚀 Components correctly configured: ${COMPONENTS_PERCENT}%"
 if [ $TOTAL_FOUND -lt $TOTAL_COMPONENTS ]; then
     echo "❌ Not all components are correctly configured."
     exit 1
-
+fi
 echo "✔️ All components are correctly configured."
 exit 0
