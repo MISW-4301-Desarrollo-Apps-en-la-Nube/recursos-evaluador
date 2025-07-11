@@ -15,6 +15,8 @@ DBS=("users-db" "posts-db" "routes-db" "offers-db")
 
 echo "------------------Enabling services for ${NAME} ------------------"
 
+kubectl get pods
+
 # Check APP service
 if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
   APP_SELECTOR=$(kubectl get svc "$SERVICE_NAME" -o jsonpath='{.spec.selector.app}')
