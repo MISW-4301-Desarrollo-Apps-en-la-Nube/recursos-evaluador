@@ -55,6 +55,7 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
   echo "------------------Execute tests------------------"
   echo "🚀 Running Newman..."
   newman run ".evaluator/entrega1_${NAME}.json" --env-var "${SERVICE}_PATH=${APP_URL}" --verbose
+  echo "✅ Tests completed successfully."
 
 else
   echo "❌ Service $SERVICE_NAME not found."
