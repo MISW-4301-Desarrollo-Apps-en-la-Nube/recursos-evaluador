@@ -1022,7 +1022,7 @@
 			"response": []
 		},
 		{
-			"name": "Eliminar trayecto que no existe",
+			"name": "Eliminar publicación que no existe",
 			"event": [
 				{
 					"listen": "test",
