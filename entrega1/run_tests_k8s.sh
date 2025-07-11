@@ -15,8 +15,6 @@ DBS=("users-db" "posts-db" "routes-db" "offers-db")
 
 echo "------------------Enabling services for ${NAME} ------------------"
 
-ENV_VARS=()
-
 # Check APP service
 if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
   APP_SELECTOR=$(kubectl get svc "$SERVICE_NAME" -o jsonpath='{.spec.selector.app}')
@@ -30,6 +28,7 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
     if [ "$APP" != "${APP_NAME}" ]; then
       if kubectl get deployment "$APP-deployment" >/dev/null 2>&1; then
         kubectl scale deployment "$APP-deployment" --replicas=0
+        echo "ℹ️  Disabling $APP-deployment."
       else
         echo "ℹ️  Deployment $APP-deployment ommitted."
       fi
@@ -39,6 +38,7 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
   for DB in "${DBS[@]}"; do
     if [ "$DB" != "${DB_NAME}" ]; then
       if kubectl get deployment "$DB-deployment" >/dev/null 2>&1; then
+        echo "ℹ️  Disabling $DB-deployment."
         kubectl scale deployment "$DB-deployment" --replicas=0
       else
         echo "ℹ️  Deployment $DB-deployment ommitted."
