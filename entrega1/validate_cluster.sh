@@ -83,12 +83,13 @@ TOTAL_FOUND=$(( FOUND_PODS + FOUND_SERVICES + FOUND_DB_DEPLOYMENTS ))
 TOTAL_COMPONENTS=$(( TOTAL_PODS + TOTAL_SERVICES + TOTAL_DB_DEPLOYMENTS ))
 
 COMPONENTS_PERCENT=$(( TOTAL_FOUND * 100 / TOTAL_COMPONENTS ))
-echo "✅ Components correctly configured: ${COMPONENTS_PERCENT}%"
+echo "-----------------------------------------------------
+echo "✅ Summary of checks:"
+echo "🚀 Components correctly configured: ${COMPONENTS_PERCENT}%"
 
 if [ $TOTAL_FOUND -lt $TOTAL_COMPONENTS ]; then
     echo "❌ Not all components are correctly configured."
     exit 1
-fi
 
-echo "✅ All checks passed!"
+echo "✔️ All components are correctly configured."
 exit 0
