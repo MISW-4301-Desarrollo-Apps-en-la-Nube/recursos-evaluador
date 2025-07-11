@@ -2,6 +2,7 @@
 set -e
 
 INPUT_NAME=$1
+YAML_PATH=$2
 
 # Convert snake_case to kebab-case
 NAME=$(echo "$INPUT_NAME" | cut -d'_' -f1)
@@ -25,12 +26,14 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
   
   APP_URL=$(minikube service "$SERVICE_NAME" --url)
 
-  # Scale to 0 replicas for other apps and databases
+  # Block traffic to other apps and databases
+  echo "------------------Blocking traffic to other apps and databases------------------"
   for APP in "${APPS[@]}"; do
     if [ "$APP" != "${APP_NAME}" ]; then
       if kubectl get deployment "$APP-deployment" >/dev/null 2>&1; then
-        kubectl scale deployment "$APP-deployment" --replicas=0
         echo "ℹ️  Disabling $APP-deployment."
+          export BLOCK_APP="$APP"
+          envsubst < "$YAML_PATH" | kubectl apply -f -
       else
         echo "ℹ️  Deployment $APP-deployment ommitted."
       fi
@@ -41,7 +44,8 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
     if [ "$DB" != "${DB_NAME}" ]; then
       if kubectl get deployment "$DB-deployment" >/dev/null 2>&1; then
         echo "ℹ️  Disabling $DB-deployment."
-        kubectl scale deployment "$DB-deployment" --replicas=0
+          export BLOCK_APP="$DB"
+          envsubst < "$YAML_PATH" | kubectl apply -f -
       else
         echo "ℹ️  Deployment $DB-deployment ommitted."
       fi
