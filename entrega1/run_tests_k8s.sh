@@ -5,9 +5,10 @@ INPUT_NAME=$1
 
 # Convert snake_case to kebab-case
 NAME=$(echo "$INPUT_NAME" | cut -d'_' -f1)
-APP_NAME=$(echo "$INPUT_NAME" | tr '_' '-')
+SERVICE=$(echo "$NAME" | tr '[:lower:]' '[:upper:]')
+APP_NAME="${NAME}-app"
 SERVICE_NAME="${APP_NAME}-service"
-DB_NAME="$(echo "$APP_NAME" | cut -d'-' -f1)-db"
+DB_NAME="${NAME}-db"
 
 APPS=("users-app" "posts-app" "routes-app" "offers-app")
 DBS=("users-db" "posts-db" "routes-db" "offers-db")
@@ -23,7 +24,6 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
   kubectl wait --for=condition=ready pod -l app="$APP_SELECTOR" --timeout=120s
   
   APP_URL=$(minikube service "$SERVICE_NAME" --url)
-  SERVICE=$(echo "$SERVICE" | cut -d'-' -f1 | tr '[:lower:]' '[:upper:]')
 
   # Scale to 0 replicas for other apps and databases
   for APP in "${APPS[@]}"; do
@@ -48,7 +48,7 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
 
   echo "------------------Execute tests------------------"
   echo "🚀 Running Newman..."
-  newman run ".evaluator/entrega1_${NAME}.json" --env-var "${SERVICE}_PATH=$APP_URL" --verbose
+  newman run ".evaluator/entrega1_${NAME}.json" --env-var "${SERVICE}_PATH=${APP_URL}" --verbose
 
 else
   echo "❌ Service $SERVICE_NAME not found."
