@@ -3,17 +3,17 @@ set -e
 
 echo "------------------ Validating NetworkPolicies ------------------"
 
-EXPECTED_NP=("allow-users-app-to-db" "allow-posts-app-to-db" "allow-routes-app-to-db" "allow-offers-app-to-db")
+EXPECTED_NP=("users-network" "posts-network" "routes-network" "offers-network")
 EXPECTED_RULES=(
-  "allow-users-app-to-db:users-app:users-db"
-  "allow-posts-app-to-db:posts-app:posts-db"
-  "allow-routes-app-to-db:routes-app:routes-db"
-  "allow-offers-app-to-db:offers-app:offers-db"
+  "users-network:users-app:users-db"
+  "posts-network:posts-app:posts-db"
+  "routes-network:routes-app:routes-db"
+  "offers-network:offers-app:offers-db"
 )
 
 ALL_OK=true
 
-# 1️⃣ Verificar configuración detallada de cada policy
+# 1️⃣ Veryfing that all expected NetworkPolicies exist and are correct
 for RULE in "${EXPECTED_RULES[@]}"; do
   IFS=':' read -r POLICY FROM TO <<< "$RULE"
 
@@ -28,7 +28,7 @@ for RULE in "${EXPECTED_RULES[@]}"; do
     continue
   fi
 
-  # Revisar selector del destino
+  # Check destiny selector
   DEST_LABEL=$(kubectl get networkpolicy "$POLICY" -o jsonpath='{.spec.podSelector.matchLabels.app}')
   if [[ "$DEST_LABEL" == "$TO" ]]; then
     echo "✅ Destiny is correct: $DEST_LABEL"
@@ -37,7 +37,7 @@ for RULE in "${EXPECTED_RULES[@]}"; do
     ALL_OK=false
   fi
 
-  # Revisar selector del origen
+  # Check from selector
   FROM_LABEL=$(kubectl get networkpolicy "$POLICY" -o jsonpath='{.spec.ingress[0].from[0].podSelector.matchLabels.app}')
   if [[ "$FROM_LABEL" == "$FROM" ]]; then
     echo "✅ From is correct: $FROM_LABEL"
@@ -46,7 +46,7 @@ for RULE in "${EXPECTED_RULES[@]}"; do
     ALL_OK=false
   fi
 
-  # Revisar puerto
+  # Check port
   PORT=$(kubectl get networkpolicy "$POLICY" -o jsonpath='{.spec.ingress[0].ports[0].port}')
   if [[ "$PORT" == "5432" ]]; then
     echo "✅ Port is correct: $PORT"
