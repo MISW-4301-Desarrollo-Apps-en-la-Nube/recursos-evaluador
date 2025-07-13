@@ -7,9 +7,9 @@ VALIDATIONS = [
         "file": "docs/diagrams/components.puml",
         "options": {
             "users_app":  ["component"],
-            "posts_app":   ["component"],
+            "posts_app":  ["component"],
             "offers_app": ["component"],
-            "routes":     ["component"],
+            "routes_app": ["component"],
         },
     },
     {
