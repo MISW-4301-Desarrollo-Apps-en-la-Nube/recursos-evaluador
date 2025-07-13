@@ -94,6 +94,8 @@ def validate_puml(puml_file, options_list):
 
     content = path.read_text()
 
+    print(f"------------ Evaluating {puml_file} ----------------")
+
     for key, value in options_list.items():
         found = False
         print(f"🚀 Searching for: {key} in {puml_file}")
