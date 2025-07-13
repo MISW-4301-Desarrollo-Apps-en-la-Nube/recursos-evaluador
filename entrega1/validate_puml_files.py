@@ -89,22 +89,22 @@ VALIDATIONS = [
 def validate_puml(puml_file, options_list):
     path = Path(puml_file)
     if not path.exists():
-        print(f"ERROR: file {puml_file} does not exist")
+        print(f"❌ ERROR: file {puml_file} does not exist")
         return False
 
     content = path.read_text()
 
     for options in options_list:
         found = False
-        print(f"Validating: {options} in {puml_file}")
+        print(f"🚀 Searching for: {options} in {puml_file}")
         for option in options:
-            print(f"Searching for: '{option}'")
+            print(f"🚀 Searching for: '{option}'")
             if option in content:
-                print(f"Found: '{option}'")
+                print(f"✅ Found: '{option}'")
                 found = True
                 break
         if not found:
-            print(f"None of the options found in {puml_file}: {options}")
+            print(f"❌ None of the options found in {puml_file}: {options}")
             return False
     return True
 
@@ -117,10 +117,10 @@ def main():
             all_ok = False
 
     if all_ok:
-        print("All files validated successfully.")
+        print("✅ All files validated successfully.")
         sys.exit(0)
     else:
-        print("Validation failed.")
+        print("❌ Validation failed.")
         sys.exit(1)
 
 
