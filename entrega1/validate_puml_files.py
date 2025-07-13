@@ -7,7 +7,7 @@ VALIDATIONS = [
         "file": "docs/diagrams/components.puml",
         "options": {
             "users_app":  ["component"],
-            "post_app":   ["component"],
+            "posts_app":   ["component"],
             "offers_app": ["component"],
             "routes":     ["component"],
         },
@@ -103,7 +103,7 @@ def validate_puml(puml_file, options_list):
                 found = True
                 break
         if not found:
-            print(f"❌ {key} not found in {puml_file}: {value}")
+            print(f"❌ {key} not found in {puml_file}. Expected element types: {value}")
             return False
     return True
 
