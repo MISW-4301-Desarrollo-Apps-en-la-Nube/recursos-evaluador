@@ -460,12 +460,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{ROUTES_PATH}}/posts/count",
+					"raw": "{{ROUTES_PATH}}/routes/count",
 					"host": [
 						"{{ROUTES_PATH}}"
 					],
 					"path": [
-						"posts",
+						"routes",
 						"count"
 					]
 				}
@@ -1004,12 +1004,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{ROUTES_PATH}}/posts/count",
+					"raw": "{{ROUTES_PATH}}/routes/count",
 					"host": [
 						"{{ROUTES_PATH}}"
 					],
 					"path": [
-						"posts",
+						"routes",
 						"count"
 					]
 				}
