@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "ff9bb320-db8a-452b-96b1-f1a6c0a5caa7",
+		"_postman_id": "fc35193e-a1ed-42e0-b74d-a706c54ffb32",
 		"name": "[MISO] Entrega 1 - Routes",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "213032"
+		"_exporter_id": "213032",
+		"_collection_link": "https://dann33.postman.co/workspace/8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-fc35193e-a1ed-42e0-b74d-a706c54ffb32?action=share&source=collection_link&creator=213032"
 	},
 	"item": [
 		{
@@ -404,6 +405,68 @@
 					],
 					"path": [
 						"routes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar cantidad rutas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"console.log(pm.response.text())",
+							"let jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"tests[\"Should exist 1 route\"] = jsonData.count === 1"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ROUTES_PATH}}/posts/count",
+					"host": [
+						"{{ROUTES_PATH}}"
+					],
+					"path": [
+						"posts",
+						"count"
 					]
 				}
 			},
@@ -886,6 +949,68 @@
 					"path": [
 						"routes",
 						"bf8792d2-3097-11ee-be56-0242ac120002"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar cantidad rutas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"console.log(pm.response.text())",
+							"let jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"tests[\"Should exist 0 routes\"] = jsonData.count === 0"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ROUTES_PATH}}/posts/count",
+					"host": [
+						"{{ROUTES_PATH}}"
+					],
+					"path": [
+						"posts",
+						"count"
 					]
 				}
 			},
