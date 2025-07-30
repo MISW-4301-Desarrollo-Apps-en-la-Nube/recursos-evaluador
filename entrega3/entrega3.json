@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "9b794d4a-92f9-498a-bf09-f3b7ce57bbd3",
-		"name": "Entrega 3",
+		"_postman_id": "04162742-8bae-4c6f-810e-ac9bd5caf16e",
+		"name": "[MISO] Entrega 3",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "1524525"
+		"_exporter_id": "213032",
+		"_collection_link": "https://dann33.postman.co/workspace/Demos~8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-04162742-8bae-4c6f-810e-ac9bd5caf16e?action=share&source=collection_link&creator=213032"
 	},
 	"item": [
 		{
@@ -1772,7 +1773,7 @@
 	],
 	"variable": [
 		{
-			"key": "INGRESS_PATH",
+			"key": "BASE_PATH",
 			"value": "",
 			"type": "string"
 		}

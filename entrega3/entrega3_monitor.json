@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "d330aacf-a8e0-4b38-a783-d471db7df754",
-		"name": "Entrega 3 monitor",
+		"_postman_id": "ec64acbd-1aca-4b48-89cb-b84a9502a97b",
+		"name": "[MISO] Entrega 3 - Monitor",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "1524525"
+		"_exporter_id": "213032",
+		"_collection_link": "https://dann33.postman.co/workspace/Demos~8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-ec64acbd-1aca-4b48-89cb-b84a9502a97b?action=share&source=collection_link&creator=213032"
 	},
 	"item": [
 		{
