@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "25894394-e96e-4338-a9c5-f33163a26957",
+		"_postman_id": "374579d6-eab5-4863-abc9-99aa6226932e",
 		"name": "[MISO] Entrega 2 - Verify old services",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "213032",
-		"_collection_link": "https://dann33.postman.co/workspace/8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-25894394-e96e-4338-a9c5-f33163a26957?action=share&source=collection_link&creator=213032"
+		"_collection_link": "https://dann33.postman.co/workspace/Demos~8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-374579d6-eab5-4863-abc9-99aa6226932e?action=share&source=collection_link&creator=213032"
 	},
 	"item": [
 		{
@@ -2231,9 +2231,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{POSTS_PATH}}/posts",
+							"raw": "{{BASE_PATH}}/posts",
 							"host": [
-								"{{POSTS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"posts"
