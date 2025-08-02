@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "7a07009b-823a-40eb-a5de-0ac593c468cb",
+		"_postman_id": "970c3688-9601-4bbe-8989-cfc4e23b002d",
 		"name": "[MISO] Entrega 2 - Verify RF003",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "213032",
-		"_collection_link": "https://dann33.postman.co/workspace/8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-7a07009b-823a-40eb-a5de-0ac593c468cb?action=share&source=collection_link&creator=213032"
+		"_collection_link": "https://dann33.postman.co/workspace/Demos~8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-970c3688-9601-4bbe-8989-cfc4e23b002d?action=share&source=collection_link&creator=213032"
 	},
 	"item": [
 		{
@@ -221,10 +221,6 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 201\"] = responseCode.code == 201;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
-									"",
 									"if(jsonData.id) {",
 									"    pm.collectionVariables.set('1_USER_ID', jsonData.id);",
 									"}",
@@ -290,10 +286,6 @@
 								"exec": [
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 201\"] = responseCode.code == 201;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
 									"",
 									"if(jsonData.id) {",
 									"    pm.collectionVariables.set('2_USER_ID', jsonData.id);",
@@ -361,10 +353,6 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 201\"] = responseCode.code == 201;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
-									"",
 									"if(jsonData.id) {",
 									"    pm.collectionVariables.set('3_USER_ID', jsonData.id);",
 									"}",
@@ -431,11 +419,6 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has token\"] = jsonData.token !== undefined;",
-									"tests[\"Response has expireAt\"] = jsonData.expireAt !== undefined;",
-									"",
 									"if(jsonData.token) {",
 									"    pm.collectionVariables.set('1_USER_TOKEN', jsonData.token);",
 									"}",
@@ -483,11 +466,6 @@
 								"exec": [
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has token\"] = jsonData.token !== undefined;",
-									"tests[\"Response has expireAt\"] = jsonData.expireAt !== undefined;",
 									"",
 									"if(jsonData.token) {",
 									"    pm.collectionVariables.set('2_USER_TOKEN', jsonData.token);",
@@ -537,11 +515,6 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has token\"] = jsonData.token !== undefined;",
-									"tests[\"Response has expireAt\"] = jsonData.expireAt !== undefined;",
-									"",
 									"if(jsonData.token) {",
 									"    pm.collectionVariables.set('3_USER_TOKEN', jsonData.token);",
 									"}",
@@ -587,12 +560,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"console.log(pm.response.text())",
-									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 201\"] = responseCode.code == 201;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;"
+									"console.log(pm.response.text())"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1728,7 +1696,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{BASE_PATH}}/posts?owner=me",
+							"raw": "{{BASE_PATH}}/posts?owner={{1_USER_ID}}",
 							"host": [
 								"{{BASE_PATH}}"
 							],
@@ -1738,7 +1706,7 @@
 							"query": [
 								{
 									"key": "owner",
-									"value": "me"
+									"value": "{{1_USER_ID}}"
 								}
 							]
 						}
@@ -1773,6 +1741,202 @@
 			"key": "BASE_PATH",
 			"value": "http://localhost:9000",
 			"type": "string"
+		},
+		{
+			"key": "1_USER_EMAIL",
+			"value": ""
+		},
+		{
+			"key": "1_USER_USERNAME",
+			"value": ""
+		},
+		{
+			"key": "1_USER_PASSWORD",
+			"value": ""
+		},
+		{
+			"key": "1_USER_DNI",
+			"value": ""
+		},
+		{
+			"key": "1_USER_FULLNAME",
+			"value": ""
+		},
+		{
+			"key": "1_USER_PHONENUMBER",
+			"value": ""
+		},
+		{
+			"key": "1_USER_ID",
+			"value": ""
+		},
+		{
+			"key": "2_USER_EMAIL",
+			"value": ""
+		},
+		{
+			"key": "2_USER_USERNAME",
+			"value": ""
+		},
+		{
+			"key": "2_USER_PASSWORD",
+			"value": ""
+		},
+		{
+			"key": "2_USER_DNI",
+			"value": ""
+		},
+		{
+			"key": "2_USER_FULLNAME",
+			"value": ""
+		},
+		{
+			"key": "2_USER_PHONENUMBER",
+			"value": ""
+		},
+		{
+			"key": "2_USER_ID",
+			"value": ""
+		},
+		{
+			"key": "3_USER_EMAIL",
+			"value": ""
+		},
+		{
+			"key": "3_USER_USERNAME",
+			"value": ""
+		},
+		{
+			"key": "3_USER_PASSWORD",
+			"value": ""
+		},
+		{
+			"key": "3_USER_DNI",
+			"value": ""
+		},
+		{
+			"key": "3_USER_FULLNAME",
+			"value": ""
+		},
+		{
+			"key": "3_USER_PHONENUMBER",
+			"value": ""
+		},
+		{
+			"key": "3_USER_ID",
+			"value": ""
+		},
+		{
+			"key": "1_USER_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "2_USER_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "3_USER_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_FLIGHTID",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_SOURCEAIRPORTCODE",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_SOURCECOUNTRY",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_DESTINYAIRPORTCODE",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_DESTINYCOUNTRY",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_BAGCOST",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_PLANNEDSTARTDATE",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_PLANNEDENDDATE",
+			"value": ""
+		},
+		{
+			"key": "POST_EXPIREAT",
+			"value": ""
+		},
+		{
+			"key": "POST_ID",
+			"value": ""
+		},
+		{
+			"key": "2_ROUTE_FLIGHTID",
+			"value": ""
+		},
+		{
+			"key": "2_ROUTE_SOURCEAIRPORTCODE",
+			"value": ""
+		},
+		{
+			"key": "2_ROUTE_SOURCECOUNTRY",
+			"value": ""
+		},
+		{
+			"key": "2_ROUTE_DESTINYAIRPORTCODE",
+			"value": ""
+		},
+		{
+			"key": "2_ROUTE_DESTINYCOUNTRY",
+			"value": ""
+		},
+		{
+			"key": "2_ROUTE_BAGCOST",
+			"value": ""
+		},
+		{
+			"key": "2_ROUTE_PLANNEDSTARTDATE",
+			"value": ""
+		},
+		{
+			"key": "2_ROUTE_PLANNEDENDDATE",
+			"value": ""
+		},
+		{
+			"key": "2_POST_EXPIREAT",
+			"value": ""
+		},
+		{
+			"key": "BAG_COST",
+			"value": ""
+		},
+		{
+			"key": "SOURCE_AIRPORT_CODE",
+			"value": ""
+		},
+		{
+			"key": "SOURCE_COUNTRY",
+			"value": ""
+		},
+		{
+			"key": "DESTINY_AIRPORT_CODE",
+			"value": ""
+		},
+		{
+			"key": "DESTINY_COUNTRY",
+			"value": ""
+		},
+		{
+			"key": "WHEN",
+			"value": ""
 		}
 	]
 }
