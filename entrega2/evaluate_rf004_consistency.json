@@ -520,7 +520,12 @@
 						}
 					},
 					"response": []
-				},
+				}
+			]
+		},
+		{
+			"name": "Verificar Consistencia",
+			"item": [
 				{
 					"name": "Verificar estado de ofertas",
 					"event": [

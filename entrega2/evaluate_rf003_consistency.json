@@ -450,7 +450,12 @@
 						}
 					},
 					"response": []
-				},
+				}
+			]
+		},
+		{
+			"name": "Verificar Consistencia",
+			"item": [
 				{
 					"name": "Verificar estado de trayectos",
 					"event": [
