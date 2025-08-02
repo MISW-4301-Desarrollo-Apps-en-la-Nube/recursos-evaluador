@@ -14,9 +14,9 @@ echo "🔍 Looking for ingress in namespace '$DEFAULT_NAMESPACE' with name '$DEF
 # Check if the Ingress Controller exists in the default namespace
 if kubectl get pod -n "$DEFAULT_NAMESPACE" | grep -q "$DEFAULT_NAME"; then
   export INGRESS_NAMESPACE=$DEFAULT_NAMESPACE
-  export INGRESS_NAME=$DEFAULT_NAME
+  export INGRESS_APP=$DEFAULT_NAME
   echo "INGRESS_NAMESPACE=$DEFAULT_NAMESPACE" >> $GITHUB_ENV
-  echo "INGRESS_NAME=$DEFAULT_NAME" >> $GITHUB_ENV
+  echo "INGRESS_APP=$DEFAULT_NAME" >> $GITHUB_ENV
   echo "✅ Ingress Controller found: $DEFAULT_NAMESPACE in namespace $DEFAULT_NAME"
 else
   echo "⚠️ Ingress was not found in namespace. Searching in all the namespaces..."
@@ -26,12 +26,12 @@ else
 
   if [ -n "$POD_INFO" ]; then
     export INGRESS_NAMESPACE=$(echo "$POD_INFO" | awk '{print $1}')
-    export INGRESS_NAME=$(echo "$POD_INFO" | awk '{print $2}')
+    export INGRESS_APP=$(echo "$POD_INFO" | awk '{print $2}')
     echo "INGRESS_NAMESPACE=$INGRESS_NAMESPACE" >> $GITHUB_ENV
-    echo "INGRESS_NAME=$INGRESS_NAME" >> $GITHUB_ENV
+    echo "INGRESS_APP=$INGRESS_APP" >> $GITHUB_ENV
     echo "✅ Ingress Controller found:"
     echo "   Namespace: $INGRESS_NAMESPACE"
-    echo "   Label (app.kubernetes.io/name): $INGRESS_NAME"
+    echo "   Label (app.kubernetes.io/name): $INGRESS_APP"
   else
     echo "❌ Ingress was not found with label 'app.kubernetes.io/name=ingress-nginx'"
     exit 1
