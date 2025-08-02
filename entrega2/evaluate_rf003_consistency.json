@@ -260,11 +260,13 @@
 									"let jsonData = JSON.parse(responseBody);",
 									"",
 									"if(jsonData.token) {",
-									"    pm.collectionVariables.set('1_USER_TOKEN', jsonData.token);",
+									"    pm.collectionVariables.set('USER_TOKEN', jsonData.token);",
+									"    console.log(\"USER_TOKEN=\" + pm.collectionVariables.get(\"USER_TOKEN\"));",
 									"}",
 									"",
 									"if(jsonData.id) {",
-									"    pm.collectionVariables.set('1_USER_ID', jsonData.id);",
+									"    pm.collectionVariables.set('USER_ID', jsonData.id);",
+									"    console.log(\"USER_ID=\" + pm.collectionVariables.get(\"USER_ID\"));",
 									"}"
 								],
 								"type": "text/javascript",
@@ -292,86 +294,6 @@
 							"path": [
 								"users",
 								"auth"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creación de trayecto",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.text())"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"let plannedStartDate = new Date();",
-									"(plannedStartDate.setDate(plannedStartDate.getDate() + 2));",
-									"plannedStartDate = plannedStartDate.toISOString();",
-									"",
-									"let plannedEndDate = new Date();",
-									"(plannedEndDate.setDate(plannedEndDate.getDate() + 10));",
-									"plannedEndDate = plannedEndDate.toISOString();",
-									"",
-									"const flightId = pm.variables.replaceIn(\"{{$randomInt}}\");",
-									"const sourceAirportCode = 'BOG';",
-									"const sourceCountry = 'Colombia';",
-									"const destinyAirportCode = 'LGW';",
-									"const destinyCountry = 'Inglaterra';",
-									"const bagCost = pm.variables.replaceIn(\"{{$randomInt}}\");",
-									"",
-									"pm.collectionVariables.set('ROUTE_FLIGHTID', flightId);",
-									"pm.collectionVariables.set('ROUTE_SOURCEAIRPORTCODE', sourceAirportCode);",
-									"pm.collectionVariables.set('ROUTE_SOURCECOUNTRY', sourceCountry);",
-									"pm.collectionVariables.set('ROUTE_DESTINYAIRPORTCODE', destinyAirportCode);",
-									"pm.collectionVariables.set('ROUTE_DESTINYCOUNTRY', destinyCountry);",
-									"pm.collectionVariables.set('ROUTE_BAGCOST', bagCost);",
-									"pm.collectionVariables.set('ROUTE_PLANNEDSTARTDATE', plannedStartDate);",
-									"pm.collectionVariables.set('ROUTE_PLANNEDENDDATE', plannedEndDate);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{1_USER_TOKEN}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"flightId\": \"{{ROUTE_FLIGHTID}}\",\n    \"sourceAirportCode\": \"{{ROUTE_SOURCEAIRPORTCODE}}\",\n    \"sourceCountry\": \"{{ROUTE_SOURCECOUNTRY}}\",\n    \"destinyAirportCode\": \"{{ROUTE_DESTINYAIRPORTCODE}}\",\n    \"destinyCountry\": \"{{ROUTE_DESTINYCOUNTRY}}\",\n    \"bagCost\": {{ROUTE_BAGCOST}},\n    \"plannedStartDate\": \"{{ROUTE_PLANNEDSTARTDATE}}\",\n    \"plannedEndDate\": \"{{ROUTE_PLANNEDENDDATE}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{BASE_PATH}}/routes",
-							"host": [
-								"{{BASE_PATH}}"
-							],
-							"path": [
-								"routes"
 							]
 						}
 					},
@@ -409,6 +331,29 @@
 									"(expireAt.setDate(expireAt.getDate() + 1));",
 									"expireAt = expireAt.toISOString();",
 									"",
+									"let plannedStartDate = new Date();",
+									"(plannedStartDate.setDate(plannedStartDate.getDate() + 2));",
+									"plannedStartDate = plannedStartDate.toISOString();",
+									"",
+									"let plannedEndDate = new Date();",
+									"(plannedEndDate.setDate(plannedEndDate.getDate() + 10));",
+									"plannedEndDate = plannedEndDate.toISOString();",
+									"",
+									"const flightId = pm.variables.replaceIn(\"{{$randomInt}}\");",
+									"const sourceAirportCode = 'BOG';",
+									"const sourceCountry = 'Colombia';",
+									"const destinyAirportCode = 'LGW';",
+									"const destinyCountry = 'Inglaterra';",
+									"const bagCost = pm.variables.replaceIn(\"{{$randomInt}}\");",
+									"",
+									"pm.collectionVariables.set('ROUTE_FLIGHTID', flightId);",
+									"pm.collectionVariables.set('ROUTE_SOURCEAIRPORTCODE', sourceAirportCode);",
+									"pm.collectionVariables.set('ROUTE_SOURCECOUNTRY', sourceCountry);",
+									"pm.collectionVariables.set('ROUTE_DESTINYAIRPORTCODE', destinyAirportCode);",
+									"pm.collectionVariables.set('ROUTE_DESTINYCOUNTRY', destinyCountry);",
+									"pm.collectionVariables.set('ROUTE_BAGCOST', bagCost);",
+									"pm.collectionVariables.set('ROUTE_PLANNEDSTARTDATE', plannedStartDate);",
+									"pm.collectionVariables.set('ROUTE_PLANNEDENDDATE', plannedEndDate);",
 									"pm.collectionVariables.set('POST_EXPIREAT', expireAt);"
 								],
 								"type": "text/javascript",
@@ -422,7 +367,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{1_USER_TOKEN}}",
+									"value": "{{USER_TOKEN}}",
 									"type": "string"
 								}
 							]
