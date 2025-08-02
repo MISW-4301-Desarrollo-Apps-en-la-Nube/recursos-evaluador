@@ -31,11 +31,11 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
   for APP in "${APPS[@]}"; do
     if [ "$APP" != "${APP_NAME}" ]; then
       if kubectl get deployment "$APP-deployment" >/dev/null 2>&1; then
-        echo "ℹ️  Disabling $APP-deployment."
+        echo "ℹ️ Disabling $APP-deployment."
           export BLOCK_APP="$APP"
           envsubst < "${EXE_FOLDER}/block_traffic.yml" | kubectl apply -f -
       else
-        echo "ℹ️  Deployment $APP-deployment ommitted."
+        echo "ℹ️ Deployment $APP-deployment ommitted."
       fi
     fi
   done
@@ -43,11 +43,11 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
   for DB in "${DBS[@]}"; do
     if [ "$DB" != "${DB_NAME}" ]; then
       if kubectl get deployment "$DB-deployment" >/dev/null 2>&1; then
-        echo "ℹ️  Disabling $DB-deployment."
+        echo "ℹ️ Disabling $DB-deployment."
           export BLOCK_APP="$DB"
           envsubst < "${EXE_FOLDER}/block_traffic.yml" | kubectl apply -f -
       else
-        echo "ℹ️  Deployment $DB-deployment ommitted."
+        echo "ℹ️ Deployment $DB-deployment ommitted."
       fi
     fi
   done

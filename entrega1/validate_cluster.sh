@@ -2,10 +2,10 @@
 
 set -e
 
-# Lista de Pods esperados
+# Expected pods to be present in the cluster
 EXPECTED_PODS=("users-db" "offers-db" "posts-db" "routes-db" "users-app" "offers-app" "posts-app" "routes-app")
 
-# Mapa de servicios esperados y su Pod target
+# Services expected to be present in the cluster with their target pods
 declare -A EXPECTED_SERVICES
 EXPECTED_SERVICES=(
     ["users-db-service"]="users-db"
@@ -18,7 +18,7 @@ EXPECTED_SERVICES=(
     ["routes-app-service"]="routes-app"
 )
 
-# Lista de bases de datos que deben tener volúmenes
+# Database deployments expected to have volumes defined and mounted
 DB_DEPLOYMENTS=("users-db" "offers-db" "posts-db" "routes-db")
 
 echo "✅ Checking expected pods..."
@@ -78,7 +78,7 @@ for DB in "${DB_DEPLOYMENTS[@]}"; do
     fi
 done
 
-# Resultados finales
+# Final summary
 TOTAL_FOUND=$(( FOUND_PODS + FOUND_SERVICES + FOUND_DB_DEPLOYMENTS ))
 TOTAL_COMPONENTS=$(( TOTAL_PODS + TOTAL_SERVICES + TOTAL_DB_DEPLOYMENTS ))
 
