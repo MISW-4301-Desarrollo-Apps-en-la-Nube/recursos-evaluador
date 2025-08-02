@@ -59,9 +59,8 @@ TOTAL_DB_DEPLOYMENTS=${#DB_DEPLOYMENTS[@]}
 FOUND_DB_DEPLOYMENTS=0
 
 for DB in "${DB_DEPLOYMENTS[@]}"; do
-    DEPLOYMENT_NAME="${DB}-deployment"
-
-    if kubectl get deployment "$DEPLOYMENT_NAME" >/dev/null 2>&1; then
+    DEPLOYMENT_NAME=$(kubectl get deployment -l app="$DB" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+    if [ -n "$DEPLOYMENT_NAME" ]; then
         echo "✔️ $DEPLOYMENT_NAME exists"
 
         VOLUMES=$(kubectl get deployment "$DEPLOYMENT_NAME" -o jsonpath='{.spec.template.spec.volumes[*].name}')
@@ -74,7 +73,7 @@ for DB in "${DB_DEPLOYMENTS[@]}"; do
             echo "❌ $DEPLOYMENT_NAME is missing volumes or volume mounts"
         fi
     else
-        echo "❌ Deployment $DEPLOYMENT_NAME NOT found"
+        echo "❌ Deployment for $DB NOT found"
     fi
 done
 
