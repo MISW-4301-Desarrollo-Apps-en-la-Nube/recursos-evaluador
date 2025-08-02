@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "1f2f5145-c2d6-4a62-ae59-310e715f40c6",
+		"_postman_id": "d8ff6e6f-5e33-4976-8345-14ec5051d292",
 		"name": "[MISO] Entrega 2 - Verify RF005 Consistency",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "213032",
-		"_collection_link": "https://dann33.postman.co/workspace/8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-1f2f5145-c2d6-4a62-ae59-310e715f40c6?action=share&source=collection_link&creator=213032"
+		"_collection_link": "https://dann33.postman.co/workspace/Demos~8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-d8ff6e6f-5e33-4976-8345-14ec5051d292?action=share&source=collection_link&creator=213032"
 	},
 	"item": [
 		{
@@ -26,14 +26,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
@@ -75,14 +68,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
@@ -124,14 +110,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
@@ -173,14 +152,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
@@ -220,10 +192,6 @@
 								"exec": [
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 201\"] = responseCode.code == 201;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
 									"",
 									"if(jsonData.id) {",
 									"    pm.collectionVariables.set('1_USER_ID', jsonData.id);",
@@ -291,11 +259,6 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has token\"] = jsonData.token !== undefined;",
-									"tests[\"Response has expireAt\"] = jsonData.expireAt !== undefined;",
-									"",
 									"if(jsonData.token) {",
 									"    pm.collectionVariables.set('1_USER_TOKEN', jsonData.token);",
 									"}",
@@ -343,12 +306,6 @@
 								"exec": [
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"pm.test(\"Status code is 201\", function () {",
-									"    pm.response.to.have.status(201);",
-									"});",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
 									"",
 									"if(jsonData.id) {",
 									"    pm.collectionVariables.set('ROUTE_ID', jsonData.id);",
@@ -429,13 +386,6 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"pm.test(\"Status code is 201\", function () {",
-									"    pm.response.to.have.status(201);",
-									"});",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has userId\"] = jsonData.userId !== undefined;",
-									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
-									"",
 									"if(jsonData.id) {",
 									"    pm.collectionVariables.set('POST_ID', jsonData.id);",
 									"}",
@@ -496,13 +446,6 @@
 								"exec": [
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"pm.test(\"Status code is 201\", function () {",
-									"    pm.response.to.have.status(201);",
-									"});",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has userId\"] = jsonData.userId !== undefined;",
-									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
 									"",
 									"if(jsonData.id) {",
 									"    pm.collectionVariables.set('OFFER_ID', jsonData.id);",

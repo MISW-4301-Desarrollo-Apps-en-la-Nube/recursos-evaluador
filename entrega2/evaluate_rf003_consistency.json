@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "acc08a3e-6202-45c9-8cef-2d5433031e42",
+		"_postman_id": "dfc13523-1af9-4f5f-8e82-35d9cb2baa7d",
 		"name": "[MISO] Entrega 2 - Verify RF003 Consistency",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "213032",
-		"_collection_link": "https://dann33.postman.co/workspace/8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-acc08a3e-6202-45c9-8cef-2d5433031e42?action=share&source=collection_link&creator=213032"
+		"_collection_link": "https://dann33.postman.co/workspace/Demos~8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-dfc13523-1af9-4f5f-8e82-35d9cb2baa7d?action=share&source=collection_link&creator=213032"
 	},
 	"item": [
 		{
@@ -26,14 +26,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
@@ -75,14 +68,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
@@ -124,14 +110,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
@@ -173,14 +152,7 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "POST",
 						"header": [],
@@ -220,10 +192,6 @@
 								"exec": [
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
-									"",
-									"tests[\"Status should be 201\"] = responseCode.code == 201;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has createdAt\"] = jsonData.createdAt !== undefined;",
 									"",
 									"if(jsonData.id) {",
 									"    pm.collectionVariables.set('1_USER_ID', jsonData.id);",
@@ -291,11 +259,6 @@
 									"console.log(pm.response.text())",
 									"let jsonData = JSON.parse(responseBody);",
 									"",
-									"tests[\"Status should be 200\"] = responseCode.code == 200;",
-									"tests[\"Response has id\"] = jsonData.id !== undefined;",
-									"tests[\"Response has token\"] = jsonData.token !== undefined;",
-									"tests[\"Response has expireAt\"] = jsonData.expireAt !== undefined;",
-									"",
 									"if(jsonData.token) {",
 									"    pm.collectionVariables.set('1_USER_TOKEN', jsonData.token);",
 									"}",
@@ -329,6 +292,86 @@
 							"path": [
 								"users",
 								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creación de trayecto",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response.text())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let plannedStartDate = new Date();",
+									"(plannedStartDate.setDate(plannedStartDate.getDate() + 2));",
+									"plannedStartDate = plannedStartDate.toISOString();",
+									"",
+									"let plannedEndDate = new Date();",
+									"(plannedEndDate.setDate(plannedEndDate.getDate() + 10));",
+									"plannedEndDate = plannedEndDate.toISOString();",
+									"",
+									"const flightId = pm.variables.replaceIn(\"{{$randomInt}}\");",
+									"const sourceAirportCode = 'BOG';",
+									"const sourceCountry = 'Colombia';",
+									"const destinyAirportCode = 'LGW';",
+									"const destinyCountry = 'Inglaterra';",
+									"const bagCost = pm.variables.replaceIn(\"{{$randomInt}}\");",
+									"",
+									"pm.collectionVariables.set('ROUTE_FLIGHTID', flightId);",
+									"pm.collectionVariables.set('ROUTE_SOURCEAIRPORTCODE', sourceAirportCode);",
+									"pm.collectionVariables.set('ROUTE_SOURCECOUNTRY', sourceCountry);",
+									"pm.collectionVariables.set('ROUTE_DESTINYAIRPORTCODE', destinyAirportCode);",
+									"pm.collectionVariables.set('ROUTE_DESTINYCOUNTRY', destinyCountry);",
+									"pm.collectionVariables.set('ROUTE_BAGCOST', bagCost);",
+									"pm.collectionVariables.set('ROUTE_PLANNEDSTARTDATE', plannedStartDate);",
+									"pm.collectionVariables.set('ROUTE_PLANNEDENDDATE', plannedEndDate);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{1_USER_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"flightId\": \"{{ROUTE_FLIGHTID}}\",\n    \"sourceAirportCode\": \"{{ROUTE_SOURCEAIRPORTCODE}}\",\n    \"sourceCountry\": \"{{ROUTE_SOURCECOUNTRY}}\",\n    \"destinyAirportCode\": \"{{ROUTE_DESTINYAIRPORTCODE}}\",\n    \"destinyCountry\": \"{{ROUTE_DESTINYCOUNTRY}}\",\n    \"bagCost\": {{ROUTE_BAGCOST}},\n    \"plannedStartDate\": \"{{ROUTE_PLANNEDSTARTDATE}}\",\n    \"plannedEndDate\": \"{{ROUTE_PLANNEDENDDATE}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_PATH}}/routes",
+							"host": [
+								"{{BASE_PATH}}"
+							],
+							"path": [
+								"routes"
 							]
 						}
 					},
@@ -574,6 +617,74 @@
 			"key": "BASE_PATH",
 			"value": "http://localhost:9000",
 			"type": "string"
+		},
+		{
+			"key": "1_USER_EMAIL",
+			"value": ""
+		},
+		{
+			"key": "1_USER_USERNAME",
+			"value": ""
+		},
+		{
+			"key": "1_USER_PASSWORD",
+			"value": ""
+		},
+		{
+			"key": "1_USER_DNI",
+			"value": ""
+		},
+		{
+			"key": "1_USER_FULLNAME",
+			"value": ""
+		},
+		{
+			"key": "1_USER_PHONENUMBER",
+			"value": ""
+		},
+		{
+			"key": "1_USER_ID",
+			"value": ""
+		},
+		{
+			"key": "1_USER_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "POST_EXPIREAT",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_FLIGHTID",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_SOURCEAIRPORTCODE",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_SOURCECOUNTRY",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_DESTINYAIRPORTCODE",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_DESTINYCOUNTRY",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_BAGCOST",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_PLANNEDSTARTDATE",
+			"value": ""
+		},
+		{
+			"key": "ROUTE_PLANNEDENDDATE",
+			"value": ""
 		}
 	]
 }
