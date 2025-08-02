@@ -13,9 +13,11 @@ echo "🔍 Looking for ingress in namespace '$DEFAULT_NAMESPACE' with name '$DEF
 
 # Check if the Ingress Controller exists in the default namespace
 if kubectl get pod -n "$DEFAULT_NAMESPACE" | grep -q "$DEFAULT_NAME"; then
+  export INGRESS_NAMESPACE=$DEFAULT_NAMESPACE
+  export INGRESS_NAME=$DEFAULT_NAME
   echo "INGRESS_NAMESPACE=$DEFAULT_NAMESPACE" >> $GITHUB_ENV
   echo "INGRESS_NAME=$DEFAULT_NAME" >> $GITHUB_ENV
-  echo "✅ Ingress Controller found: $INGRESS_NAME in namespace $INGRESS_NAMESPACE"
+  echo "✅ Ingress Controller found: $DEFAULT_NAMESPACE in namespace $DEFAULT_NAME"
 else
   echo "⚠️ Ingress was not found in namespace. Searching in all the namespaces..."
 
