@@ -3,16 +3,16 @@ kind: NetworkPolicy
 metadata:
   name: allow-only-ingress
 spec:
-  - namespaceSelector:
-      matchLabels:
-        name: ${INGRESS_NAMESPACE}
-    podSelector:
-      matchLabels:
-        app: ${BLOCK_APP}
-    policyTypes:
-    - Ingress
-    ingress:
-    - from:
-      - podSelector:
-          matchLabels:
-            app.kubernetes.io/name: ${INGRESS_APP}
+  podSelector:
+    matchLabels:
+      app: ${BLOCK_APP}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ${INGRESS_NAMESPACE}
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: ${INGRESS_APP}
