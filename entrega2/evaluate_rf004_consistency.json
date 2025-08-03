@@ -350,8 +350,8 @@
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													"const username = \"user-test-rf004\"",
-													"const password = \"user-test-rf004\"",
+													"const username = \"usertestrf004\"",
+													"const password = \"usertestrf004\"",
 													"pm.collectionVariables.set('USERNAME', username);",
 													"pm.collectionVariables.set('PASSWORD', password);"
 												],
