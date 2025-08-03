@@ -194,7 +194,7 @@
 									"let jsonData = JSON.parse(responseBody);",
 									"",
 									"if(jsonData.id) {",
-									"    pm.collectionVariables.set('1_USER_ID', jsonData.id);",
+									"    pm.collectionVariables.set('USER_ID', jsonData.id);",
 									"}",
 									""
 								],
@@ -260,11 +260,13 @@
 									"let jsonData = JSON.parse(responseBody);",
 									"",
 									"if(jsonData.token) {",
-									"    pm.collectionVariables.set('1_USER_TOKEN', jsonData.token);",
+									"    pm.collectionVariables.set('USER_TOKEN', jsonData.token);",
+									"    console.log(\"USER_TOKEN=\" + pm.collectionVariables.get(\"USER_TOKEN\"));",
 									"}",
 									"",
 									"if(jsonData.id) {",
-									"    pm.collectionVariables.set('1_USER_ID', jsonData.id);",
+									"    pm.collectionVariables.set('USER_ID', jsonData.id);",
+									"    console.log(\"USER_ID=\" + pm.collectionVariables.get(\"USER_ID\"));",
 									"}"
 								],
 								"type": "text/javascript",
@@ -388,6 +390,7 @@
 									"",
 									"if(jsonData.id) {",
 									"    pm.collectionVariables.set('POST_ID', jsonData.id);",
+									"    console.log(\"POST_ID=\" + pm.collectionVariables.get(\"POST_ID\"));",
 									"}",
 									""
 								],
@@ -474,10 +477,10 @@
 									"const fragile = FRAGILE_TYPES[Math.floor(Math.random() * FRAGILE_TYPES.length)];",
 									"const offer = pm.variables.replaceIn(\"{{$randomInt}}\");",
 									"",
-									"pm.collectionVariables.set('2_OFFER_DESCRIPTION', description);",
-									"pm.collectionVariables.set('2_OFFER_SIZE', size);",
-									"pm.collectionVariables.set('2_OFFER_FRAGILE', fragile);",
-									"pm.collectionVariables.set('2_OFFER_OFFER', offer);"
+									"pm.collectionVariables.set('OFFER_DESCRIPTION', description);",
+									"pm.collectionVariables.set('OFFER_SIZE', size);",
+									"pm.collectionVariables.set('OFFER_FRAGILE', fragile);",
+									"pm.collectionVariables.set('OFFER_OFFER', offer);"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -490,7 +493,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{1_USER_TOKEN}}",
+									"value": "{{USER_TOKEN}}",
 									"type": "string"
 								}
 							]
@@ -499,7 +502,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"description\": \"{{2_OFFER_DESCRIPTION}}\",\n    \"size\": \"{{2_OFFER_SIZE}}\",\n    \"fragile\" : {{2_OFFER_FRAGILE}},\n    \"offer\": {{2_OFFER_OFFER}}\n}",
+							"raw": "{\n    \"description\": \"{{OFFER_DESCRIPTION}}\",\n    \"size\": \"{{OFFER_SIZE}}\",\n    \"fragile\" : {{OFFER_FRAGILE}},\n    \"offer\": {{OFFER_OFFER}}\n}",
 							"options": {
 								"raw": {
 									"language": "json"
