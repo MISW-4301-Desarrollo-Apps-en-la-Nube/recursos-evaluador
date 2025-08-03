@@ -210,8 +210,8 @@
 									"script": {
 										"exec": [
 											"const email = pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase();",
-											"const username = \"user-test-rf004\"",
-											"const password = \"user-test-rf004\"",
+											"const username = \"usertestrf004\"",
+											"const password = \"usertestrf004\"",
 											"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
 											"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
 											"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
@@ -295,7 +295,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"routeId\": \"{{$guid}}\",\n    \"expireAt\": \"{{POST_EXPIREAT}}\",\n    \"userId\": \"{{USER_ID}}\"\n}",
+									"raw": "{\n    \"routeId\": \"{{$randomUUID}}\",\n    \"expireAt\": \"{{POST_EXPIREAT}}\",\n    \"userId\": \"{{USER_ID}}\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -575,6 +575,42 @@
 			"key": "BASE_PATH",
 			"value": "http://localhost:9000",
 			"type": "string"
+		},
+		{
+			"key": "1_USER_EMAIL",
+			"value": ""
+		},
+		{
+			"key": "1_USER_USERNAME",
+			"value": ""
+		},
+		{
+			"key": "1_USER_PASSWORD",
+			"value": ""
+		},
+		{
+			"key": "1_USER_DNI",
+			"value": ""
+		},
+		{
+			"key": "1_USER_FULLNAME",
+			"value": ""
+		},
+		{
+			"key": "1_USER_PHONENUMBER",
+			"value": ""
+		},
+		{
+			"key": "USER_ID",
+			"value": ""
+		},
+		{
+			"key": "POST_EXPIREAT",
+			"value": ""
+		},
+		{
+			"key": "POST_ID",
+			"value": ""
 		}
 	]
 }
