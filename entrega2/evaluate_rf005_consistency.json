@@ -766,7 +766,7 @@
 													"bearer": [
 														{
 															"key": "token",
-															"value": "{{1_USER_TOKEN}}",
+															"value": "{{USER_TOKEN}}",
 															"type": "string"
 														}
 													]
