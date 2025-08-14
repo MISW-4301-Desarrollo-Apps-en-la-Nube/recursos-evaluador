@@ -100,7 +100,7 @@ def validate_puml(puml_file, options_list):
         found = False
         print(f"🚀 Searching for: {key} in {puml_file}")
         for option in value:
-            if f"{option} \"{key}\"" in content:
+            if f"{option} \"{key}\"" in content or f"{option} {key}" in content:
                 print(f"✅ Found: {option} \"{key}\"")
                 found = True
                 break
