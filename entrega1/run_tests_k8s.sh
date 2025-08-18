@@ -45,7 +45,9 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
 
   for DB in "${DBS[@]}"; do
     if [ "$DB" != "${DB_NAME}" ]; then
-      DEPLOYMENT_NAME=$(kubectl get deployment -l app="$DB" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+      #DEPLOYMENT_NAME=$(kubectl get deployment -l app="$DB" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+      echo "ℹ️ Looking for deployment for $DB..."
+      DEPLOYMENT_NAME="$(kubectl get deploy -l "app=$DB" -n "$NS" -o name --ignore-not-found | head -n1)"
       if [ -n "$DEPLOYMENT_NAME" ]; then
         echo "ℹ️ Disabling $DEPLOYMENT_NAME."
         export BLOCK_APP="$DB"
