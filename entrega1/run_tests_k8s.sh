@@ -30,6 +30,7 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
   echo "------------------Blocking traffic to other apps and databases------------------"
   for APP in "${APPS[@]}"; do
     if [ "$APP" != "${APP_NAME}" ]; then
+      echo "ℹ️ Looking for deployment for $APP..."
       DEPLOYMENT_NAME=$(kubectl get deployment -l app="$APP" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
       if [ -n "$DEPLOYMENT_NAME" ]; then
         echo "ℹ️ Disabling $DEPLOYMENT_NAME."
@@ -46,8 +47,8 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
       DEPLOYMENT_NAME=$(kubectl get deployment -l app="$DB" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
       if [ -n "$DEPLOYMENT_NAME" ]; then
         echo "ℹ️ Disabling $DEPLOYMENT_NAME."
-          export BLOCK_APP="$DB"
-          envsubst < "${EXE_FOLDER}/block_traffic.yml" | kubectl apply -f -
+        export BLOCK_APP="$DB"
+        envsubst < "${EXE_FOLDER}/block_traffic.yml" | kubectl apply -f -
       else
         echo "ℹ️ Deployment $DB-deployment ommitted."
       fi
