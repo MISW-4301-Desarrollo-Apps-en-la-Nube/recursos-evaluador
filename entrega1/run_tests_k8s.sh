@@ -24,7 +24,7 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
   echo "Waiting for APP pods with selector app=$APP_SELECTOR (from $SERVICE_NAME)..."
   kubectl wait --for=condition=ready pod -l app="$APP_SELECTOR" --timeout=120s
   
-  #APP_URL=$(minikube service "$SERVICE_NAME" --url)
+  APP_URL=$(minikube service "$SERVICE_NAME" --url)
 
   # Block traffic to other apps and databases
   echo "------------------Blocking traffic to other apps and databases------------------"
