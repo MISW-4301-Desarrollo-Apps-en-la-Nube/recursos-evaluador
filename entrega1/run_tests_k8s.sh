@@ -24,14 +24,15 @@ if kubectl get svc "$SERVICE_NAME" >/dev/null 2>&1; then
   echo "Waiting for APP pods with selector app=$APP_SELECTOR (from $SERVICE_NAME)..."
   kubectl wait --for=condition=ready pod -l app="$APP_SELECTOR" --timeout=120s
   
-  APP_URL=$(minikube service "$SERVICE_NAME" --url)
+  #APP_URL=$(minikube service "$SERVICE_NAME" --url)
 
   # Block traffic to other apps and databases
   echo "------------------Blocking traffic to other apps and databases------------------"
   for APP in "${APPS[@]}"; do
     if [ "$APP" != "${APP_NAME}" ]; then
       echo "ℹ️ Looking for deployment for $APP..."
-      DEPLOYMENT_NAME=$(kubectl get deployment -l app="$APP" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+      #DEPLOYMENT_NAME=$(kubectl get deployment -l app="$APP" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+      DEPLOYMENT_NAME="$(kubectl get deploy -l "app=$APP" -n "$NS" -o name --ignore-not-found | head -n1)"
       if [ -n "$DEPLOYMENT_NAME" ]; then
         echo "ℹ️ Disabling $DEPLOYMENT_NAME."
         export BLOCK_APP="$APP"
