@@ -60,8 +60,8 @@ FOUND_DB_DEPLOYMENTS=0
 
 for DB in "${DB_DEPLOYMENTS[@]}"; do
     DEPLOYMENT_NAME="$(kubectl get deployment -l "app=$DB" -n "default" -o name --ignore-not-found | head -n1)"
-    #DEPLOYMENT_NAME=$(kubectl get deployment -l app="$DB" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
     if [ -n "$DEPLOYMENT_NAME" ]; then
+        DEPLOYMENT_NAME=$(kubectl get deployment -l app="$DB" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
         echo "✔️ $DEPLOYMENT_NAME exists"
 
         VOLUMES=$(kubectl get deployment "$DEPLOYMENT_NAME" -o jsonpath='{.spec.template.spec.volumes[*].name}' 2>/dev/null || echo "")
