@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "b9066b6c-e847-435c-a46f-fb50ff202dbe",
+		"_postman_id": "535bf277-875e-4298-8fe2-5a4026cae93a",
 		"name": "[MISO] Entrega 2 - Verify RF004 Consistency",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "213032",
-		"_collection_link": "https://dann33.postman.co/workspace/Demos~8d59fc5a-160d-46bf-8d08-66ac887e9ddf/collection/213032-b9066b6c-e847-435c-a46f-fb50ff202dbe?action=share&source=collection_link&creator=213032"
+		"_exporter_id": "23047833",
+		"_collection_link": "https://go.postman.co/collection/23047833-535bf277-875e-4298-8fe2-5a4026cae93a?source=collection_link"
 	},
 	"item": [
 		{
@@ -253,6 +253,74 @@
 							"response": []
 						},
 						{
+							"name": "Creación de usuarios 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"console.log(pm.response.text())",
+											"let jsonData = JSON.parse(responseBody);",
+											"",
+											"if(jsonData.id) {",
+											"    pm.collectionVariables.set('USER_ID_2', jsonData.id);",
+											"}",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const email = pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase();",
+											"const username = \"usertestrf0042\"",
+											"const password = \"usertestrf0042\"",
+											"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
+											"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
+											"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
+											"",
+											"pm.collectionVariables.set('2_USER_EMAIL', email);",
+											"pm.collectionVariables.set('2_USER_USERNAME', username);",
+											"pm.collectionVariables.set('2_USER_PASSWORD', password);",
+											"pm.collectionVariables.set('2_USER_DNI', dni);",
+											"pm.collectionVariables.set('2_USER_FULLNAME', fullname);",
+											"pm.collectionVariables.set('2_USER_PHONENUMBER', phonenumber);"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"{{2_USER_USERNAME}}\",\n    \"password\": \"{{2_USER_PASSWORD}}\",\n    \"email\": \"{{2_USER_EMAIL}}\",\n    \"dni\": \"{{2_USER_DNI}}\",\n    \"fullName\": \"{{2_USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{2_USER_PHONENUMBER}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_PATH}}/users",
+									"host": [
+										"{{BASE_PATH}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Creación de publicación",
 							"event": [
 								{
@@ -269,7 +337,8 @@
 											""
 										],
 										"type": "text/javascript",
-										"packages": {}
+										"packages": {},
+										"requests": {}
 									}
 								},
 								{
@@ -283,7 +352,8 @@
 											"pm.collectionVariables.set('POST_EXPIREAT', expireAt);"
 										],
 										"type": "text/javascript",
-										"packages": {}
+										"packages": {},
+										"requests": {}
 									}
 								}
 							],
@@ -295,7 +365,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"routeId\": \"{{$randomUUID}}\",\n    \"expireAt\": \"{{POST_EXPIREAT}}\",\n    \"userId\": \"{{USER_ID}}\"\n}",
+									"raw": "{\n    \"routeId\": \"{{$randomUUID}}\",\n    \"expireAt\": \"{{POST_EXPIREAT}}\",\n    \"userId\": \"{{USER_ID_2}}\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -555,6 +625,7 @@
 			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -564,6 +635,7 @@
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -573,8 +645,7 @@
 	"variable": [
 		{
 			"key": "BASE_PATH",
-			"value": "http://localhost:9000",
-			"type": "string"
+			"value": "http://localhost:9000"
 		},
 		{
 			"key": "1_USER_EMAIL",
@@ -610,6 +681,62 @@
 		},
 		{
 			"key": "POST_ID",
+			"value": ""
+		},
+		{
+			"key": "USERNAME",
+			"value": ""
+		},
+		{
+			"key": "PASSWORD",
+			"value": ""
+		},
+		{
+			"key": "OFFER_DESCRIPTION",
+			"value": ""
+		},
+		{
+			"key": "OFFER_SIZE",
+			"value": ""
+		},
+		{
+			"key": "OFFER_FRAGILE",
+			"value": ""
+		},
+		{
+			"key": "OFFER_OFFER",
+			"value": ""
+		},
+		{
+			"key": "USER_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "2_USER_EMAIL",
+			"value": ""
+		},
+		{
+			"key": "2_USER_USERNAME",
+			"value": ""
+		},
+		{
+			"key": "2_USER_PASSWORD",
+			"value": ""
+		},
+		{
+			"key": "2_USER_DNI",
+			"value": ""
+		},
+		{
+			"key": "2_USER_FULLNAME",
+			"value": ""
+		},
+		{
+			"key": "2_USER_PHONENUMBER",
+			"value": ""
+		},
+		{
+			"key": "USER_ID_2",
 			"value": ""
 		}
 	]

@@ -35,10 +35,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/users/reset",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/users/reset",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"users",
@@ -73,10 +72,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards/reset",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards/reset",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards",
@@ -131,10 +129,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/native/env",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/native/env",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"native",
@@ -200,10 +197,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/users",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/users",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"users"
@@ -238,10 +234,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/users/auth",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/users/auth",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"users",
@@ -286,10 +281,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/users/auth",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/users/auth",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"users",
@@ -339,10 +333,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/native/env",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/native/env",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"native",
@@ -408,10 +401,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/users",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/users",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"users"
@@ -446,10 +438,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/users/auth",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/users/auth",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"users",
@@ -507,10 +498,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/users/auth",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/users/auth",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"users",
@@ -565,10 +555,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/native/env",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/native/env",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"native",
@@ -634,10 +623,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/users",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/users",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"users"
@@ -694,10 +682,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/users/auth",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/users/auth",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"users",
@@ -724,10 +711,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards/ping",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards/ping",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards",
@@ -806,10 +792,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -863,10 +848,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -920,10 +904,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -977,10 +960,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -1029,10 +1011,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/native/env",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/native/env",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"native",
@@ -1116,10 +1097,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -1189,10 +1169,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -1262,10 +1241,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -1319,10 +1297,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -1371,10 +1348,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/native/env",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/native/env",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"native",
@@ -1458,10 +1434,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -1537,10 +1512,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -1616,10 +1590,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -1676,10 +1649,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
@@ -1736,10 +1708,9 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{INGRESS_PATH}}/credit-cards",
-							"protocol": "http",
+							"raw": "{{BASE_PATH}}/credit-cards",
 							"host": [
-								"{{INGRESS_PATH}}"
+								"{{BASE_PATH}}"
 							],
 							"path": [
 								"credit-cards"
