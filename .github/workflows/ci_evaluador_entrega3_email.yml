@@ -5,11 +5,32 @@ on:
       email:
         description: 'Email'
         required: true
+      environment:
+        type: choice
+        required: true
+        description: 'Select the target environment'
+        options:
+          - student1
+          - student2
+          - student3
+          - student4
+          - tutor
   workflow_call:
     inputs:
       email:
         type: string
         description: 'Email'
+        required: true
+      environment:
+        type: string
+        required: true
+        description: 'Select the target environment'
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_SESSION_TOKEN:
         required: true
 jobs:
   run-pipeline:
