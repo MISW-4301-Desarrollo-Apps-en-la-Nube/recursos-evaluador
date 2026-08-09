@@ -27,6 +27,7 @@ on:
         required: true
 jobs:
   evaluate:
+    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,10 +40,18 @@ jobs:
         run: mkdir -p .evaluator
       - name: Download validate scripts
         run: curl -sSL -o .evaluator/entrega3.json https://raw.githubusercontent.com/MISW-4301-Desarrollo-Apps-en-la-Nube/proyecto-monitor/main/entrega3/entrega3.json
-      - name: Set up yq
-        uses: mikefarah/yq@v4.30.8
-      - name: Save host path to env variable
-        run: echo "BASE_PATH=$(yq '.url' config.yaml)" >> $GITHUB_ENV
+      - name: Checkout evaluator resources
+        uses: actions/checkout@v4
+        with:
+          repository: MISW-4301-Desarrollo-Apps-en-la-Nube/recursos-evaluador
+          ref: main
+          path: .evaluator-resources
+      - name: Connect to EKS cluster
+        uses: ./.evaluator-resources/.github/actions/connect-eks-cluster
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
       - name: Test entrega 3 - Reset
         run: newman run ".evaluator/entrega3.json" --env-var BASE_PATH=$BASE_PATH --verbose --folder "Reset" --insecure
       - name: Test entrega 3 - RF-007 Verificar identidad

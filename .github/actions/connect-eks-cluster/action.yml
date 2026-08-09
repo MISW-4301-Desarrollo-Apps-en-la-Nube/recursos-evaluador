@@ -1,0 +1,59 @@
+name: Connect to EKS cluster and resolve ingress URL
+description: >
+  Configura las credenciales de AWS, descubre el (único) cluster EKS de la
+  cuenta, conecta kubectl a él y expone BASE_PATH con la URL del load
+  balancer de ingress-nginx.
+inputs:
+  aws-access-key-id:
+    required: true
+  aws-secret-access-key:
+    required: true
+  aws-session-token:
+    required: true
+  aws-region:
+    required: false
+    default: us-east-1
+outputs:
+  cluster_name:
+    description: Nombre del cluster EKS detectado y conectado
+    value: ${{ steps.discover.outputs.cluster_name }}
+  base_path:
+    description: URL base del load balancer de ingress-nginx (https://<hostname>)
+    value: ${{ steps.host.outputs.base_path }}
+runs:
+  using: composite
+  steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-session-token: ${{ inputs.aws-session-token }}
+        aws-region: ${{ inputs.aws-region }}
+
+    - name: Discover EKS cluster and connect kubectl
+      id: discover
+      shell: bash
+      run: |
+        aws sts get-caller-identity
+        CLUSTER_COUNT=$(aws eks list-clusters --query 'length(clusters)' --output text)
+        if [ "$CLUSTER_COUNT" != "1" ]; then
+          echo "❌ Se esperaba exactamente 1 cluster EKS en la cuenta, se encontraron ${CLUSTER_COUNT}"
+          exit 1
+        fi
+        CLUSTER_NAME=$(aws eks list-clusters --query 'clusters[0]' --output text)
+        echo "Cluster detectado: ${CLUSTER_NAME}"
+        aws eks update-kubeconfig --region "${{ inputs.aws-region }}" --name "${CLUSTER_NAME}"
+        echo "cluster_name=${CLUSTER_NAME}" >> "$GITHUB_OUTPUT"
+
+    - name: Save host path to env variable
+      id: host
+      shell: bash
+      run: |
+        HOSTNAME=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        if [ -z "$HOSTNAME" ]; then
+          echo "❌ No se pudo obtener el hostname del load balancer de ingress-nginx"
+          exit 1
+        fi
+        echo "BASE_PATH=https://${HOSTNAME}" >> "$GITHUB_ENV"
+        echo "base_path=https://${HOSTNAME}" >> "$GITHUB_OUTPUT"

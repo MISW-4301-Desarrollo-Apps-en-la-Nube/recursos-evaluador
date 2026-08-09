@@ -40,6 +40,7 @@ on:
         required: true
 jobs:
   verify_entrega1:
+    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     name: Verify Entrega 1 still works
     steps:
@@ -53,17 +54,19 @@ jobs:
       run: mkdir -p .evaluator
     - name: Download validate scripts
       run: curl -sSL -o .evaluator/entrega2_verify_entrega1_still_works.json https://raw.githubusercontent.com/MISW-4301-Desarrollo-Apps-en-la-Nube/proyecto-monitor/main/entrega2/verify_old_endpoints.json
-    - name: Set up yq
-      uses: mikefarah/yq@v4.30.8
-    - name: Save host path to env variable
-      id: saveHostPath
-      run: |
-        BASE_PATH=$(yq '.url' config.yaml)
-        if [ -z "$BASE_PATH" ] || [ "$BASE_PATH" = "null" ]; then
-          echo "Deployment url is not set properly"
-          exit 1
-        fi
-        echo "BASE_PATH=$BASE_PATH" >> $GITHUB_ENV
+    - name: Checkout evaluator resources
+      uses: actions/checkout@v4
+      with:
+        repository: MISW-4301-Desarrollo-Apps-en-la-Nube/recursos-evaluador
+        ref: main
+        path: .evaluator-resources
+    - name: Connect to EKS cluster
+      id: setupK8s
+      uses: ./.evaluator-resources/.github/actions/connect-eks-cluster
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
     - name: Test entrega 1 still works
       run: newman run ".evaluator/entrega2_verify_entrega1_still_works.json" --env-var BASE_PATH=$BASE_PATH --verbose --insecure
   ########################################################
@@ -91,34 +94,22 @@ jobs:
         chmod +x .evaluator/scale.sh
         curl -sSL -o .evaluator/evaluate_rf003.json https://raw.githubusercontent.com/MISW-4301-Desarrollo-Apps-en-la-Nube/proyecto-monitor/main/entrega2/evaluate_rf003.json
         curl -sSL -o .evaluator/evaluate_rf003_consistency.json https://raw.githubusercontent.com/MISW-4301-Desarrollo-Apps-en-la-Nube/proyecto-monitor/main/entrega2/evaluate_rf003_consistency.json
-    - name: Set up yq
-      uses: mikefarah/yq@v4.30.8
-    - name: Save host path to env variable
-      id: saveHostPath
-      run: |
-        BASE_PATH=$(yq '.url' config.yaml)
-        if [ -z "$BASE_PATH" ] || [ "$BASE_PATH" = "null" ]; then
-          echo "Deployment url is not set properly"
-          exit 1
-        fi
-        echo "BASE_PATH=$BASE_PATH" >> $GITHUB_ENV
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
+    - name: Checkout evaluator resources
+      uses: actions/checkout@v4
+      with:
+        repository: MISW-4301-Desarrollo-Apps-en-la-Nube/recursos-evaluador
+        ref: main
+        path: .evaluator-resources
+    - name: Connect to EKS cluster
+      id: setupK8s
+      uses: ./.evaluator-resources/.github/actions/connect-eks-cluster
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: us-east-1
-      continue-on-error: true
-    - name: Set Up K8s cluster connection
-      id: setupK8s
-      run: |
-        aws sts get-caller-identity
-        CLUSTER_NAME=$(yq '.cluster_name' config.yaml)
-        aws eks update-kubeconfig --region us-east-1 --name ${CLUSTER_NAME}
     - name: Verify RF003 is available
       id: verify_rf003
-      if: always() && steps.saveHostPath.outcome == 'success'
+      if: always() && steps.setupK8s.outcome == 'success'
       run: |
         HTTP_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" -I "$BASE_PATH/rf003/posts")
         if [[ "$HTTP_CODE" == "405" || "$HTTP_CODE" == "200" ]]; then
@@ -258,34 +249,22 @@ jobs:
         chmod +x .evaluator/scale.sh
         curl -sSL -o .evaluator/evaluate_rf004.json https://raw.githubusercontent.com/MISW-4301-Desarrollo-Apps-en-la-Nube/proyecto-monitor/main/entrega2/evaluate_rf004.json
         curl -sSL -o .evaluator/evaluate_rf004_consistency.json https://raw.githubusercontent.com/MISW-4301-Desarrollo-Apps-en-la-Nube/proyecto-monitor/main/entrega2/evaluate_rf004_consistency.json
-    - name: Set up yq
-      uses: mikefarah/yq@v4.30.8
-    - name: Save host path to env variable
-      id: saveHostPath
-      run: |
-        BASE_PATH=$(yq '.url' config.yaml)
-        if [ -z "$BASE_PATH" ] || [ "$BASE_PATH" = "null" ]; then
-          echo "Deployment url is not set properly"
-          exit 1
-        fi
-        echo "BASE_PATH=$BASE_PATH" >> $GITHUB_ENV
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
+    - name: Checkout evaluator resources
+      uses: actions/checkout@v4
+      with:
+        repository: MISW-4301-Desarrollo-Apps-en-la-Nube/recursos-evaluador
+        ref: main
+        path: .evaluator-resources
+    - name: Connect to EKS cluster
+      id: setupK8s
+      uses: ./.evaluator-resources/.github/actions/connect-eks-cluster
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: us-east-1
-      continue-on-error: true
-    - name: Set Up K8s cluster connection
-      id: setupK8s
-      run: |
-        aws sts get-caller-identity
-        CLUSTER_NAME=$(yq '.cluster_name' config.yaml)
-        aws eks update-kubeconfig --region us-east-1 --name ${CLUSTER_NAME}
     - name: Verify RF004 is available
       id: verify_rf004
-      if: always() && steps.saveHostPath.outcome == 'success'
+      if: always() && steps.setupK8s.outcome == 'success'
       run: |
         HTTP_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" -I "$BASE_PATH/rf004/posts/bf8792d2-3097-11ee-be56-0242ac120002/offers")
         if [[ "$HTTP_CODE" == "405" || "$HTTP_CODE" == "200" ]]; then
@@ -426,34 +405,22 @@ jobs:
         chmod +x .evaluator/scale.sh
         curl -sSL -o .evaluator/evaluate_rf005.json https://raw.githubusercontent.com/MISW-4301-Desarrollo-Apps-en-la-Nube/proyecto-monitor/main/entrega2/evaluate_rf005.json
         curl -sSL -o .evaluator/evaluate_rf005_consistency.json https://raw.githubusercontent.com/MISW-4301-Desarrollo-Apps-en-la-Nube/proyecto-monitor/main/entrega2/evaluate_rf005_consistency.json
-    - name: Set up yq
-      uses: mikefarah/yq@v4.30.8
-    - name: Save host path to env variable
-      id: saveHostPath
-      run: |
-        BASE_PATH=$(yq '.url' config.yaml)
-        if [ -z "$BASE_PATH" ] || [ "$BASE_PATH" = "null" ]; then
-          echo "Deployment url is not set properly"
-          exit 1
-        fi
-        echo "BASE_PATH=$BASE_PATH" >> $GITHUB_ENV
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
+    - name: Checkout evaluator resources
+      uses: actions/checkout@v4
+      with:
+        repository: MISW-4301-Desarrollo-Apps-en-la-Nube/recursos-evaluador
+        ref: main
+        path: .evaluator-resources
+    - name: Connect to EKS cluster
+      id: setupK8s
+      uses: ./.evaluator-resources/.github/actions/connect-eks-cluster
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: us-east-1
-      continue-on-error: true
-    - name: Set Up K8s cluster connection
-      id: setupK8s
-      run: |
-        aws sts get-caller-identity
-        CLUSTER_NAME=$(yq '.cluster_name' config.yaml)
-        aws eks update-kubeconfig --region us-east-1 --name ${CLUSTER_NAME}
     - name: Verify RF005 is available
       id: verify_rf005
-      if: always() && steps.saveHostPath.outcome == 'success'
+      if: always() && steps.setupK8s.outcome == 'success'
       run: |
         HTTP_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" -I "$BASE_PATH/rf005/posts/bf8792d2-3097-11ee-be56-0242ac120002")
         if [[ "$HTTP_CODE" == "405" || "$HTTP_CODE" == "200" ]]; then
