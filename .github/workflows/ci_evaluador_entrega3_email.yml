@@ -1,4 +1,4 @@
-name: Evaluador Implementación Entrega 3 con Email
+name: Entrega 3 - Evaluador Implementación con Email
 on:
   workflow_dispatch:
     inputs:
