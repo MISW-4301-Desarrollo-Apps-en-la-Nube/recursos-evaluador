@@ -4,7 +4,8 @@ name: Entrega 2 - Destroy (reusable)
 # evaluador no tiene el código de terraform/k8s de ningún proyecto), solo vía
 # `uses:` desde el repo de cada estudiante/tutor. Ver
 # 202514-cesarf/.github/workflows/ci_entrega2_destroy.yml para un ejemplo de
-# invocación. Usa el mismo config.yaml (tf_stacks / k8s_manifests) que
+# invocación. Usa el mismo config.yaml (tf_stacks / k8s_manifests) y las
+# mismas carpetas terraform/stacks/ y terraform/environments/ que
 # ci_entrega2_deploy.yml — ver el comentario de cabecera de ese workflow
 # para el contrato completo.
 #
@@ -89,8 +90,12 @@ jobs:
           tf_stacks=$(yq -o=json -I=0 '.tf_stacks // []' config.yaml)
           k8s_manifests=$(yq -o=json -I=0 '.k8s_manifests // []' config.yaml)
 
+          if [ ! -d terraform/stacks ] || [ ! -d terraform/environments ]; then
+            echo "❌ Este repo debe tener las carpetas terraform/stacks/ y terraform/environments/ en la raíz."
+            exit 1
+          fi
           if [ "$(echo "$tf_stacks" | jq 'length')" -eq 0 ]; then
-            echo "❌ config.yaml no define 'tf_stacks' (lista de carpetas de terraform a destruir)."
+            echo "❌ config.yaml no define 'tf_stacks' (lista de nombres de stack de terraform a destruir)."
             exit 1
           fi
           if [ "$(echo "$k8s_manifests" | jq 'length')" -eq 0 ]; then
@@ -107,13 +112,18 @@ jobs:
           region=""
           cluster_name=""
 
-          for stack in $(echo '${{ steps.lists.outputs.tf_stacks }}' | jq -r '.[]'); do
-            env_dir="terraform/environments/${{ inputs.environment }}/$(basename "$stack")"
+          for stack_name in $(echo '${{ steps.lists.outputs.tf_stacks }}' | jq -r '.[]'); do
+            stack_dir="terraform/stacks/${stack_name}"
+            env_dir="terraform/environments/${{ inputs.environment }}/${stack_name}"
             backend_file="${env_dir}/backend.tfvars"
             tfvars_file="${env_dir}/terraform.tfvars"
 
+            if [ ! -d "$stack_dir" ]; then
+              echo "❌ No existe ${stack_dir} (esperado para el stack '${stack_name}' listado en tf_stacks)."
+              exit 1
+            fi
             if [ ! -f "$backend_file" ]; then
-              echo "❌ No existe ${backend_file} (esperado para el stack '${stack}')."
+              echo "❌ No existe ${backend_file} (esperado para el stack '${stack_name}')."
               exit 1
             fi
 
@@ -257,23 +267,22 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          echo '${{ needs.config.outputs.tf_stacks }}' | jq -r 'reverse | .[]' | while read -r stack; do
-            env_dir="terraform/environments/${{ inputs.environment }}/$(basename "$stack")"
-            # "../" repetido tantas veces como partes tenga $stack, para
-            # llegar desde el stack hasta la raíz del repo y de ahí a
-            # $env_dir (terraform init/destroy corren con working-directory
-            # dentro del propio stack).
-            depth=$(echo "$stack" | awk -F'/' '{print NF}')
-            prefix=$(printf '../%.0s' $(seq 1 "$depth"))
+          echo '${{ needs.config.outputs.tf_stacks }}' | jq -r 'reverse | .[]' | while read -r stack_name; do
+            stack_dir="terraform/stacks/${stack_name}"
+            # terraform/stacks/<nombre> tiene siempre la misma profundidad
+            # (3 niveles), así que la ruta de vuelta a la raíz del repo
+            # siempre es "../../../" (terraform init/destroy corren con
+            # working-directory dentro del propio stack).
+            env_dir="../../../terraform/environments/${{ inputs.environment }}/${stack_name}"
 
-            echo "::group::terraform destroy ($stack)"
-            pushd "$stack" >/dev/null
+            echo "::group::terraform destroy ($stack_name)"
+            pushd "$stack_dir" >/dev/null
 
-            terraform init -backend-config="${prefix}${env_dir}/backend.tfvars"
+            terraform init -backend-config="${env_dir}/backend.tfvars"
             terraform destroy \
               -var="db_username=${DB_USERNAME}" \
               -var="db_password=${DB_PASSWORD}" \
-              -var-file="${prefix}${env_dir}/terraform.tfvars" \
+              -var-file="${env_dir}/terraform.tfvars" \
               -auto-approve
 
             popd >/dev/null

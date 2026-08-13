@@ -7,11 +7,17 @@ name: Entrega 2 - Deploy (reusable)
 # invocación.
 #
 # El repo que llama debe tener:
+#   - Las carpetas `terraform/stacks/` y `terraform/environments/` en la raíz
+#     (ambas obligatorias, con esos nombres exactos).
 #   - `config.yaml` en la raíz, con:
-#       tf_stacks: lista de carpetas de terraform a aplicar, en orden
-#       (rutas relativas a la raíz del repo).
+#       tf_stacks: lista de NOMBRES de stack (no rutas), en el orden en que
+#       se deben aplicar. Por cada nombre debe existir tanto
+#       terraform/stacks/<nombre>/ (el módulo) como
+#       terraform/environments/<environment>/<nombre>/ (con backend.tfvars y
+#       terraform.tfvars) — el pipeline arma esas dos rutas a partir del
+#       nombre, no acepta rutas arbitrarias.
 #         tf_stacks:
-#           - terraform/stacks/apps
+#           - apps
 #       k8s_manifests: lista de carpetas con manifiestos de k8s (*.yml) a
 #       aplicar, en orden (rutas relativas a la raíz del repo).
 #         k8s_manifests:
@@ -29,9 +35,6 @@ name: Entrega 2 - Deploy (reusable)
 #               folder: offers_app
 #               image_name: offers-app
 #               image_tag: 1.0.0
-#   - Por cada carpeta en tf_stacks, un
-#     terraform/environments/<environment>/<mismo-nombre-de-carpeta-del-stack>/
-#     con backend.tfvars y terraform.tfvars.
 #   - terraform/.terraform-version con la versión de Terraform a usar.
 #   - Un GitHub Environment llamado igual que el input `environment`.
 on:
@@ -139,8 +142,12 @@ jobs:
           apps=$(yq -o=json -I=0 '.apps // []' config.yaml \
             | jq -c '[.[] | to_entries[0] | {name: .key} + .value]')
 
+          if [ ! -d terraform/stacks ] || [ ! -d terraform/environments ]; then
+            echo "❌ Este repo debe tener las carpetas terraform/stacks/ y terraform/environments/ en la raíz."
+            exit 1
+          fi
           if [ "$(echo "$tf_stacks" | jq 'length')" -eq 0 ]; then
-            echo "❌ config.yaml no define 'tf_stacks' (lista de carpetas de terraform a aplicar, en orden)."
+            echo "❌ config.yaml no define 'tf_stacks' (lista de nombres de stack de terraform a aplicar, en orden)."
             exit 1
           fi
           if [ "$(echo "$k8s_manifests" | jq 'length')" -eq 0 ]; then
@@ -167,13 +174,18 @@ jobs:
           cluster_name=""
           buckets="[]"
 
-          for stack in $(echo '${{ steps.lists.outputs.tf_stacks }}' | jq -r '.[]'); do
-            env_dir="terraform/environments/${{ inputs.environment }}/$(basename "$stack")"
+          for stack_name in $(echo '${{ steps.lists.outputs.tf_stacks }}' | jq -r '.[]'); do
+            stack_dir="terraform/stacks/${stack_name}"
+            env_dir="terraform/environments/${{ inputs.environment }}/${stack_name}"
             backend_file="${env_dir}/backend.tfvars"
             tfvars_file="${env_dir}/terraform.tfvars"
 
+            if [ ! -d "$stack_dir" ]; then
+              echo "❌ No existe ${stack_dir} (esperado para el stack '${stack_name}' listado en tf_stacks)."
+              exit 1
+            fi
             if [ ! -f "$backend_file" ]; then
-              echo "❌ No existe ${backend_file} (esperado para el stack '${stack}', ver comentario al inicio del workflow)."
+              echo "❌ No existe ${backend_file} (esperado para el stack '${stack_name}', ver comentario al inicio del workflow)."
               exit 1
             fi
 
@@ -280,23 +292,22 @@ jobs:
         run: |
           echo '{}' > /tmp/tf_outputs.json
 
-          echo '${{ needs.config.outputs.tf_stacks }}' | jq -r '.[]' | while read -r stack; do
-            env_dir="terraform/environments/${{ inputs.environment }}/$(basename "$stack")"
-            # "../" repetido tantas veces como partes tenga $stack, para
-            # llegar desde el stack hasta la raíz del repo y de ahí a
-            # $env_dir (terraform init/plan corren con working-directory
-            # dentro del propio stack).
-            depth=$(echo "$stack" | awk -F'/' '{print NF}')
-            prefix=$(printf '../%.0s' $(seq 1 "$depth"))
+          echo '${{ needs.config.outputs.tf_stacks }}' | jq -r '.[]' | while read -r stack_name; do
+            stack_dir="terraform/stacks/${stack_name}"
+            # terraform/stacks/<nombre> tiene siempre la misma profundidad
+            # (3 niveles), así que la ruta de vuelta a la raíz del repo
+            # siempre es "../../../" (terraform init/plan corren con
+            # working-directory dentro del propio stack).
+            env_dir="../../../terraform/environments/${{ inputs.environment }}/${stack_name}"
 
-            echo "::group::terraform ($stack)"
-            pushd "$stack" >/dev/null
+            echo "::group::terraform ($stack_name)"
+            pushd "$stack_dir" >/dev/null
 
-            terraform init -backend-config="${prefix}${env_dir}/backend.tfvars"
+            terraform init -backend-config="${env_dir}/backend.tfvars"
             terraform plan \
               -var="db_username=${DB_USERNAME}" \
               -var="db_password=${DB_PASSWORD}" \
-              -var-file="${prefix}${env_dir}/terraform.tfvars" \
+              -var-file="${env_dir}/terraform.tfvars" \
               -out=.tfplan
             terraform apply .tfplan
             terraform output -json > /tmp/stack_outputs.json
