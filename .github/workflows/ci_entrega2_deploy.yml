@@ -45,6 +45,12 @@ name: Entrega 2 - Deploy (reusable)
 #   - terraform/.terraform-version con la versión de Terraform a usar.
 #   - Un GitHub Environment llamado igual que el input `environment`.
 #
+# Buckets de state: este pipeline NO crea buckets S3 — todos (los de cada
+# backend.tfvars de estudiante, y el del secret TF_STATE_BUCKET_NAME de
+# tutor) deben existir de antes en la cuenta de AWS. Créenlos a mano (ej.
+# `aws s3api create-bucket ...` + `put-bucket-versioning`) antes de correr
+# el deploy.
+#
 # Caso especial "tutor": el ambiente `tutor` no tiene backend.tfvars ni
 # terraform.tfvars committeados (el tutor no hace push a este repo, así que
 # nunca configura terraform/environments/tutor/), así que para ese ambiente
@@ -55,9 +61,8 @@ name: Entrega 2 - Deploy (reusable)
 #   - backend.tfvars: el de default_env se pasa primero como base (por si
 #     trae más valores además de bucket/key/region), y luego se pisan:
 #       - region: fijo "us-east-1"
-#       - bucket: del secret TF_STATE_BUCKET_NAME (se crea en
-#         bootstrap-state-bucket si no existe, igual que para los demás
-#         ambientes)
+#       - bucket: del secret TF_STATE_BUCKET_NAME (debe existir de antes,
+#         ver arriba)
 #       - key: "<repo>/<stack>/terraform.tfstate" (repo = nombre de este
 #         repo, para que cada stack tenga su propio state dentro del
 #         bucket)
@@ -110,7 +115,6 @@ jobs:
       k8s_manifests: ${{ steps.lists.outputs.k8s_manifests }}
       apps: ${{ steps.lists.outputs.apps }}
       default_env: ${{ steps.lists.outputs.default_env }}
-      state_buckets: ${{ steps.tf_config.outputs.state_buckets }}
       region: ${{ steps.tf_config.outputs.region }}
       cluster_name: ${{ steps.tf_config.outputs.cluster_name }}
     steps:
@@ -215,13 +219,10 @@ jobs:
           echo "default_env=${default_env}" >> "$GITHUB_OUTPUT"
 
       - id: tf_config
-        name: Descubrir región / bucket(s) de state / cluster para los stacks
-        env:
-          TF_STATE_BUCKET_NAME: ${{ secrets.TF_STATE_BUCKET_NAME }}
+        name: Descubrir región / cluster para los stacks
         run: |
           region=""
           cluster_name=""
-          buckets="[]"
 
           if [ "${{ inputs.environment }}" = "tutor" ]; then
             env_environment="${{ steps.lists.outputs.default_env }}"
@@ -246,19 +247,11 @@ jobs:
 
             if [ "${{ inputs.environment }}" = "tutor" ]; then
               stack_region="us-east-1"
-              stack_bucket="${TF_STATE_BUCKET_NAME}"
             else
               stack_region=$(grep '^region' "$backend_file" | cut -d'"' -f2)
-              stack_bucket=$(grep '^bucket' "$backend_file" | cut -d'"' -f2)
             fi
 
             region="${region:-$stack_region}"
-            # -c (salida compacta, una sola línea): state_buckets se escribe
-            # tal cual a $GITHUB_OUTPUT más abajo, que no admite valores
-            # multi-línea en formato key=value (rompería con "Invalid
-            # format" en la primera línea que no sea la del key=).
-            buckets=$(echo "$buckets" | jq -c --arg b "$stack_bucket" --arg r "$stack_region" \
-              '. + [{"bucket": $b, "region": $r}] | unique')
 
             if [ -z "$cluster_name" ] && [ -f "$tfvars_file" ]; then
               found=$(grep '^cluster_name' "$tfvars_file" | cut -d'"' -f2 || true)
@@ -273,60 +266,19 @@ jobs:
 
           echo "region=${region}" >> "$GITHUB_OUTPUT"
           echo "cluster_name=${cluster_name}" >> "$GITHUB_OUTPUT"
-          echo "state_buckets=${buckets}" >> "$GITHUB_OUTPUT"
 
   # -----------------------------------------------------------------------
-  # 1. Crea, si todavía no existen, los buckets S3 usados como backend de
-  #    state por los stacks de tf_stacks (equivalente idempotente de
-  #    `make bucketstate`, generalizado a más de un bucket).
-  # -----------------------------------------------------------------------
-  bootstrap-state-bucket:
-    environment: ${{ inputs.environment }}
-    needs: config
-    runs-on: ubuntu-latest
-    steps:
-      # Si tus credenciales ya vienen inyectadas en el runner (self-hosted,
-      # OIDC de organización, etc.) puedes borrar este step en los 4 jobs
-      # que lo usan.
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ needs.config.outputs.region }}
-
-      - name: Create Terraform state bucket(s) if they don't exist
-        run: |
-          echo '${{ needs.config.outputs.state_buckets }}' | jq -c '.[]' | while read -r item; do
-            bucket=$(echo "$item" | jq -r '.bucket')
-            region=$(echo "$item" | jq -r '.region')
-
-            if aws s3api head-bucket --bucket "${bucket}" 2>/dev/null; then
-              echo "Bucket ${bucket} ya existe, no se crea de nuevo."
-            else
-              echo "Creando bucket ${bucket} en ${region}..."
-              if [ "${region}" = "us-east-1" ]; then
-                aws s3api create-bucket --bucket "${bucket}" --region "${region}"
-              else
-                aws s3api create-bucket --bucket "${bucket}" --region "${region}" \
-                  --create-bucket-configuration LocationConstraint="${region}"
-              fi
-              aws s3api put-bucket-versioning --bucket "${bucket}" \
-                --versioning-configuration Status=Enabled
-            fi
-          done
-
-  # -----------------------------------------------------------------------
-  # 2. Terraform init / plan / apply de cada stack en tf_stacks, en orden
+  # 1. Terraform init / plan / apply de cada stack en tf_stacks, en orden
   #    (equivalente a tfinit + tfplan + tfapply, repetido por stack). Los
   #    outputs de todos los stacks se combinan en un único mapa (si dos
   #    stacks definen un output con el mismo nombre, gana el del stack que
-  #    corre después) y quedan disponibles para deploy-k8s.
+  #    corre después) y quedan disponibles para deploy-k8s. Los buckets S3
+  #    de state deben existir de antes (ver comentario de cabecera) — este
+  #    pipeline no los crea.
   # -----------------------------------------------------------------------
   terraform:
     environment: ${{ inputs.environment }}
-    needs: [config, bootstrap-state-bucket]
+    needs: config
     runs-on: ubuntu-latest
     outputs:
       tf_outputs: ${{ steps.apply.outputs.json }}
@@ -454,7 +406,7 @@ jobs:
           docker push "${ecr_repo}:${{ matrix.app.image_tag }}"
 
   # -----------------------------------------------------------------------
-  # 3. Despliegue de los manifiestos de k8s listados en k8s_manifests, en
+  # 2. Despliegue de los manifiestos de k8s listados en k8s_manifests, en
   #    orden, sobre el cluster EKS (equivalente a eksconfig + eksapply).
   # -----------------------------------------------------------------------
   deploy-k8s:
