@@ -83,9 +83,11 @@ on:
       AWS_SESSION_TOKEN:
         required: true
       DB_USERNAME:
-        required: true
+        description: 'Usuario de la base de datos. Opcional'
+        required: false
       DB_PASSWORD:
-        required: true
+        description: 'Contraseña de la base de datos. Opcional'
+        required: false
 
 # Evita que dos ejecuciones toquen el mismo state de Terraform / cluster a la
 # vez. El grupo NO lleva "deploy-": es el mismo que usa ci_entrega2_destroy.yml
@@ -128,10 +130,11 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           TF_STATE_BUCKET_NAME: ${{ vars.TF_STATE_BUCKET_NAME }}
         run: |
-          required_secrets=(AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN DB_USERNAME DB_PASSWORD)
-          # Para tutor no hay backend.tfvars del que sacar el bucket de state
-          # (ver comentario de cabecera): TF_STATE_BUCKET_NAME es una
-          # variable (no un secret), así que se valida por separado.
+          # DB_USERNAME/DB_PASSWORD son opcionales. Si vienen configurados se pasan a
+          # terraform como -var, si no, no se pasa nada y el stack debe
+          # resolver sus propias credenciales.
+          required_secrets=(AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN)
+
           required_vars=()
           if [ "${{ inputs.environment }}" = "tutor" ]; then
             required_vars+=(TF_STATE_BUCKET_NAME)
@@ -170,16 +173,19 @@ jobs:
           # caracteres y no contenga "/", '"' ni "@". Si no cumple, mejor
           # fallar acá con un mensaje claro que dejar que falle más tarde en
           # "creating RDS DB Instance" con un error de la API menos obvio.
-          if [ ${#DB_PASSWORD} -lt 8 ] || [ ${#DB_PASSWORD} -gt 128 ]; then
-            echo "❌ DB_PASSWORD debe tener entre 8 y 128 caracteres (tiene ${#DB_PASSWORD})."
-            exit 1
-          fi
-          case "$DB_PASSWORD" in
-            */*|*'"'*|*@*)
-              echo "❌ DB_PASSWORD no puede contener '/', '\"' ni '@' (restricción de RDS)."
+          # Solo se valida si DB_PASSWORD viene configurado (es opcional).
+          if [ -n "$DB_PASSWORD" ]; then
+            if [ ${#DB_PASSWORD} -lt 8 ] || [ ${#DB_PASSWORD} -gt 128 ]; then
+              echo "❌ DB_PASSWORD debe tener entre 8 y 128 caracteres (tiene ${#DB_PASSWORD})."
               exit 1
-              ;;
-          esac
+            fi
+            case "$DB_PASSWORD" in
+              */*|*'"'*|*@*)
+                echo "❌ DB_PASSWORD no puede contener '/', '\"' ni '@' (restricción de RDS)."
+                exit 1
+                ;;
+            esac
+          fi
 
           echo "✅ Todos los secrets y variables requeridos están configurados."
 
@@ -332,6 +338,19 @@ jobs:
             env_environment="${{ inputs.environment }}"
           fi
 
+          # DB_USERNAME/DB_PASSWORD son opcionales (ver "Check required
+          # secrets and vars are set"): solo se pasan a terraform si vienen
+          # configurados, para no generar un warning de "value for
+          # undeclared variable" en stacks que no las usan (equipos que
+          # hardcodean las credenciales en su HCL en vez de usar variables).
+          db_vars=()
+          if [ -n "$DB_USERNAME" ]; then
+            db_vars+=("-var=db_username=${DB_USERNAME}")
+          fi
+          if [ -n "$DB_PASSWORD" ]; then
+            db_vars+=("-var=db_password=${DB_PASSWORD}")
+          fi
+
           echo '${{ needs.config.outputs.tf_stacks }}' | jq -r '.[]' | while read -r stack_name; do
             stack_dir="terraform/stacks/${stack_name}"
             # terraform/stacks/<nombre> tiene siempre la misma profundidad
@@ -353,8 +372,7 @@ jobs:
               terraform init -reconfigure -backend-config="${env_dir}/backend.tfvars"
             fi
             terraform plan \
-              -var="db_username=${DB_USERNAME}" \
-              -var="db_password=${DB_PASSWORD}" \
+              "${db_vars[@]}" \
               -var-file="${env_dir}/terraform.tfvars" \
               -out=.tfplan
             terraform apply .tfplan

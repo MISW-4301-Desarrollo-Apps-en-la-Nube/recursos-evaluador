@@ -36,9 +36,11 @@ on:
       AWS_SESSION_TOKEN:
         required: true
       DB_USERNAME:
-        required: true
+        description: 'Usuario de la base de datos. Opcional'
+        required: false
       DB_PASSWORD:
-        required: true
+        description: 'Contraseña de la base de datos. Opcional'
+        required: false
 
 # Mismo grupo (sin prefijo "deploy-"/"destroy-") que ci_entrega2_deploy.yml a
 # propósito: un deploy y un destroy del mismo ambiente nunca deben correr en
@@ -75,7 +77,10 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           TF_STATE_BUCKET_NAME: ${{ vars.TF_STATE_BUCKET_NAME }}
         run: |
-          required_secrets=(AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN DB_USERNAME DB_PASSWORD)
+          # DB_USERNAME/DB_PASSWORD son opcionalesm, si vienen
+          # configurados se pasan a terraform como -var, si no, no se pasa
+          # nada.
+          required_secrets=(AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN)
           # TF_STATE_BUCKET_NAME es una variable (no un secret) — se valida
           # por separado. Ver comentario de cabecera de ci_entrega2_deploy.yml.
           required_vars=()
@@ -332,6 +337,16 @@ jobs:
             env_environment="${{ inputs.environment }}"
           fi
 
+          # DB_USERNAME/DB_PASSWORD son opcionales, solo se pasan a terraform
+          # si vienen configurados.
+          db_vars=()
+          if [ -n "$DB_USERNAME" ]; then
+            db_vars+=("-var=db_username=${DB_USERNAME}")
+          fi
+          if [ -n "$DB_PASSWORD" ]; then
+            db_vars+=("-var=db_password=${DB_PASSWORD}")
+          fi
+
           echo '${{ needs.config.outputs.tf_stacks }}' | jq -r 'reverse | .[]' | while read -r stack_name; do
             stack_dir="terraform/stacks/${stack_name}"
             # terraform/stacks/<nombre> tiene siempre la misma profundidad
@@ -353,8 +368,7 @@ jobs:
               terraform init -reconfigure -backend-config="${env_dir}/backend.tfvars"
             fi
             terraform destroy \
-              -var="db_username=${DB_USERNAME}" \
-              -var="db_password=${DB_PASSWORD}" \
+              "${db_vars[@]}" \
               -var-file="${env_dir}/terraform.tfvars" \
               -auto-approve
 
