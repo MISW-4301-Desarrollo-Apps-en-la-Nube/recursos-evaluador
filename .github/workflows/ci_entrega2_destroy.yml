@@ -13,6 +13,14 @@ name: Entrega 2 - Destroy (reusable)
 # manifiestos de k8s_manifests y hace terraform destroy de tf_stacks en
 # orden inverso, para respetar dependencias entre stacks (ej. un stack
 # "apps" que depende de un stack "network" se destruye antes que "network").
+#
+# Caso especial "tutor": mismo criterio que ci_entrega2_deploy.yml — el
+# ambiente `tutor` no tiene backend.tfvars committeado, así que para ese
+# ambiente el pipeline arma bucket/region/key sin leer el archivo (region
+# fija "us-east-1", bucket del secret TF_STATE_BUCKET_NAME, key
+# "<repo>/<stack>/terraform.tfstate"). terraform.tfvars sí se sigue leyendo
+# igual que para cualquier otro ambiente. Ver el comentario de cabecera de
+# ci_entrega2_deploy.yml para el detalle completo.
 on:
   workflow_call:
     inputs:
@@ -31,6 +39,9 @@ on:
         required: true
       DB_PASSWORD:
         required: true
+      TF_STATE_BUCKET_NAME:
+        description: 'Bucket S3 para el state de Terraform. Solo se usa (y es obligatorio) cuando environment=tutor.'
+        required: false
 
 # Mismo grupo (sin prefijo "deploy-"/"destroy-") que ci_entrega2_deploy.yml a
 # propósito: un deploy y un destroy del mismo ambiente nunca deben correr en
@@ -64,9 +75,18 @@ jobs:
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          TF_STATE_BUCKET_NAME: ${{ secrets.TF_STATE_BUCKET_NAME }}
         run: |
+          required_vars=(AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN DB_USERNAME DB_PASSWORD)
+          # Para tutor no hay backend.tfvars del que sacar el bucket de state
+          # (ver comentario de cabecera), así que el secret es obligatorio
+          # solo en ese caso.
+          if [ "${{ inputs.environment }}" = "tutor" ]; then
+            required_vars+=(TF_STATE_BUCKET_NAME)
+          fi
+
           missing=()
-          for var in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN DB_USERNAME DB_PASSWORD; do
+          for var in "${required_vars[@]}"; do
             if [ -z "${!var}" ]; then
               missing+=("$var")
             fi
@@ -115,19 +135,27 @@ jobs:
           for stack_name in $(echo '${{ steps.lists.outputs.tf_stacks }}' | jq -r '.[]'); do
             stack_dir="terraform/stacks/${stack_name}"
             env_dir="terraform/environments/${{ inputs.environment }}/${stack_name}"
-            backend_file="${env_dir}/backend.tfvars"
             tfvars_file="${env_dir}/terraform.tfvars"
 
             if [ ! -d "$stack_dir" ]; then
               echo "❌ No existe ${stack_dir} (esperado para el stack '${stack_name}' listado en tf_stacks)."
               exit 1
             fi
-            if [ ! -f "$backend_file" ]; then
-              echo "❌ No existe ${backend_file} (esperado para el stack '${stack_name}')."
-              exit 1
+
+            # tutor no tiene backend.tfvars committeado (ver comentario de
+            # cabecera): la región es un valor fijo en vez de leerse del
+            # archivo.
+            if [ "${{ inputs.environment }}" = "tutor" ]; then
+              stack_region="us-east-1"
+            else
+              backend_file="${env_dir}/backend.tfvars"
+              if [ ! -f "$backend_file" ]; then
+                echo "❌ No existe ${backend_file} (esperado para el stack '${stack_name}')."
+                exit 1
+              fi
+              stack_region=$(grep '^region' "$backend_file" | cut -d'"' -f2)
             fi
 
-            stack_region=$(grep '^region' "$backend_file" | cut -d'"' -f2)
             region="${region:-$stack_region}"
 
             if [ -z "$cluster_name" ] && [ -f "$tfvars_file" ]; then
@@ -266,7 +294,11 @@ jobs:
         env:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          TF_STATE_BUCKET_NAME: ${{ secrets.TF_STATE_BUCKET_NAME }}
+          REPO_NAME: ${{ github.repository }}
         run: |
+          repo_name="${REPO_NAME##*/}"
+
           echo '${{ needs.config.outputs.tf_stacks }}' | jq -r 'reverse | .[]' | while read -r stack_name; do
             stack_dir="terraform/stacks/${stack_name}"
             # terraform/stacks/<nombre> tiene siempre la misma profundidad
@@ -278,7 +310,18 @@ jobs:
             echo "::group::terraform destroy ($stack_name)"
             pushd "$stack_dir" >/dev/null
 
-            terraform init -backend-config="${env_dir}/backend.tfvars"
+            # tutor no tiene backend.tfvars committeado (ver comentario de
+            # cabecera): el backend se arma inline con el secret del bucket
+            # y una key derivada del repo, en vez de apuntar al archivo.
+            if [ "${{ inputs.environment }}" = "tutor" ]; then
+              terraform init \
+                -backend-config="bucket=${TF_STATE_BUCKET_NAME}" \
+                -backend-config="key=${repo_name}/${stack_name}/terraform.tfstate" \
+                -backend-config="region=us-east-1" \
+                -backend-config="encrypt=true"
+            else
+              terraform init -backend-config="${env_dir}/backend.tfvars"
+            fi
             terraform destroy \
               -var="db_username=${DB_USERNAME}" \
               -var="db_password=${DB_PASSWORD}" \

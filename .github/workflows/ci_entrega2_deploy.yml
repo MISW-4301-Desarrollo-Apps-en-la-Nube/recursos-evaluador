@@ -14,8 +14,9 @@ name: Entrega 2 - Deploy (reusable)
 #       se deben aplicar. Por cada nombre debe existir tanto
 #       terraform/stacks/<nombre>/ (el módulo) como
 #       terraform/environments/<environment>/<nombre>/ (con backend.tfvars y
-#       terraform.tfvars) — el pipeline arma esas dos rutas a partir del
-#       nombre, no acepta rutas arbitrarias.
+#       terraform.tfvars, salvo para environment=tutor, que no necesita
+#       backend.tfvars — ver "Caso especial tutor" más abajo) — el pipeline
+#       arma esas dos rutas a partir del nombre, no acepta rutas arbitrarias.
 #         tf_stacks:
 #           - apps
 #       k8s_manifests: lista de carpetas con manifiestos de k8s (*.yml) a
@@ -37,6 +38,20 @@ name: Entrega 2 - Deploy (reusable)
 #               image_tag: 1.0.0
 #   - terraform/.terraform-version con la versión de Terraform a usar.
 #   - Un GitHub Environment llamado igual que el input `environment`.
+#
+# Caso especial "tutor": el ambiente `tutor` no tiene backend.tfvars
+# committeado (el tutor no hace push a este repo, así que nunca configura
+# esa carpeta), así que para ese ambiente el pipeline NO lee bucket/region
+# del backend.tfvars de cada stack. En su lugar usa:
+#   - region: fijo "us-east-1"
+#   - bucket: del secret TF_STATE_BUCKET_NAME (se crea en
+#     bootstrap-state-bucket si no existe, igual que para los demás
+#     ambientes)
+#   - key: "<repo>/<stack>/terraform.tfstate" (repo = nombre de este repo,
+#     para que cada stack tenga su propio state dentro del bucket)
+# terraform.tfvars de cada stack sí sigue leyéndose igual que para cualquier
+# otro ambiente (para cluster_name, etc.) — solo backend.tfvars se
+# reemplaza.
 on:
   workflow_call:
     inputs:
@@ -55,6 +70,9 @@ on:
         required: true
       DB_PASSWORD:
         required: true
+      TF_STATE_BUCKET_NAME:
+        description: 'Bucket S3 para el state de Terraform. Solo se usa (y es obligatorio) cuando environment=tutor.'
+        required: false
 
 # Evita que dos ejecuciones toquen el mismo state de Terraform / cluster a la
 # vez. El grupo NO lleva "deploy-": es el mismo que usa ci_entrega2_destroy.yml
@@ -95,9 +113,18 @@ jobs:
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          TF_STATE_BUCKET_NAME: ${{ secrets.TF_STATE_BUCKET_NAME }}
         run: |
+          required_vars=(AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN DB_USERNAME DB_PASSWORD)
+          # Para tutor no hay backend.tfvars del que sacar el bucket de state
+          # (ver comentario de cabecera), así que el secret es obligatorio
+          # solo en ese caso.
+          if [ "${{ inputs.environment }}" = "tutor" ]; then
+            required_vars+=(TF_STATE_BUCKET_NAME)
+          fi
+
           missing=()
-          for var in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN DB_USERNAME DB_PASSWORD; do
+          for var in "${required_vars[@]}"; do
             if [ -z "${!var}" ]; then
               missing+=("$var")
             fi
@@ -169,6 +196,8 @@ jobs:
 
       - id: tf_config
         name: Descubrir región / bucket(s) de state / cluster para los stacks
+        env:
+          TF_STATE_BUCKET_NAME: ${{ secrets.TF_STATE_BUCKET_NAME }}
         run: |
           region=""
           cluster_name=""
@@ -177,20 +206,26 @@ jobs:
           for stack_name in $(echo '${{ steps.lists.outputs.tf_stacks }}' | jq -r '.[]'); do
             stack_dir="terraform/stacks/${stack_name}"
             env_dir="terraform/environments/${{ inputs.environment }}/${stack_name}"
-            backend_file="${env_dir}/backend.tfvars"
             tfvars_file="${env_dir}/terraform.tfvars"
 
             if [ ! -d "$stack_dir" ]; then
               echo "❌ No existe ${stack_dir} (esperado para el stack '${stack_name}' listado en tf_stacks)."
               exit 1
             fi
-            if [ ! -f "$backend_file" ]; then
-              echo "❌ No existe ${backend_file} (esperado para el stack '${stack_name}', ver comentario al inicio del workflow)."
-              exit 1
+
+            if [ "${{ inputs.environment }}" = "tutor" ]; then
+              stack_region="us-east-1"
+              stack_bucket="${TF_STATE_BUCKET_NAME}"
+            else
+              backend_file="${env_dir}/backend.tfvars"
+              if [ ! -f "$backend_file" ]; then
+                echo "❌ No existe ${backend_file} (esperado para el stack '${stack_name}', ver comentario al inicio del workflow)."
+                exit 1
+              fi
+              stack_region=$(grep '^region' "$backend_file" | cut -d'"' -f2)
+              stack_bucket=$(grep '^bucket' "$backend_file" | cut -d'"' -f2)
             fi
 
-            stack_region=$(grep '^region' "$backend_file" | cut -d'"' -f2)
-            stack_bucket=$(grep '^bucket' "$backend_file" | cut -d'"' -f2)
             region="${region:-$stack_region}"
             buckets=$(echo "$buckets" | jq --arg b "$stack_bucket" --arg r "$stack_region" \
               '. + [{"bucket": $b, "region": $r}] | unique')
@@ -289,8 +324,11 @@ jobs:
         env:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          TF_STATE_BUCKET_NAME: ${{ secrets.TF_STATE_BUCKET_NAME }}
+          REPO_NAME: ${{ github.repository }}
         run: |
           echo '{}' > /tmp/tf_outputs.json
+          repo_name="${REPO_NAME##*/}"
 
           echo '${{ needs.config.outputs.tf_stacks }}' | jq -r '.[]' | while read -r stack_name; do
             stack_dir="terraform/stacks/${stack_name}"
@@ -303,7 +341,18 @@ jobs:
             echo "::group::terraform ($stack_name)"
             pushd "$stack_dir" >/dev/null
 
-            terraform init -backend-config="${env_dir}/backend.tfvars"
+            # tutor no tiene backend.tfvars committeado (ver comentario de
+            # cabecera): el backend se arma inline con el secret del bucket
+            # y una key derivada del repo, en vez de apuntar al archivo.
+            if [ "${{ inputs.environment }}" = "tutor" ]; then
+              terraform init \
+                -backend-config="bucket=${TF_STATE_BUCKET_NAME}" \
+                -backend-config="key=${repo_name}/${stack_name}/terraform.tfstate" \
+                -backend-config="region=us-east-1" \
+                -backend-config="encrypt=true"
+            else
+              terraform init -backend-config="${env_dir}/backend.tfvars"
+            fi
             terraform plan \
               -var="db_username=${DB_USERNAME}" \
               -var="db_password=${DB_PASSWORD}" \
