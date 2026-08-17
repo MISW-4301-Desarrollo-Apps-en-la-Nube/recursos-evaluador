@@ -466,8 +466,10 @@ jobs:
         # (ej. output "db_host" -> $DB_HOST). Así los manifiestos de k8s
         # pueden usar cualquier output que definan los stacks, no solo
         # db_name/db_host/db_port.
+        env:
+          TF_OUTPUTS: ${{ needs.terraform.outputs.tf_outputs }}
         run: |
-          echo '${{ needs.terraform.outputs.tf_outputs }}' \
+          echo "$TF_OUTPUTS" \
             | jq -r 'to_entries[] | "\(.key | ascii_upcase)=\(.value)"' \
             >> "$GITHUB_ENV"
 
