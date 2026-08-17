@@ -39,9 +39,6 @@ on:
         required: true
       DB_PASSWORD:
         required: true
-      TF_STATE_BUCKET_NAME:
-        description: 'Bucket S3 para el state de Terraform. Solo se usa (y es obligatorio) cuando environment=tutor.'
-        required: false
 
 # Mismo grupo (sin prefijo "deploy-"/"destroy-") que ci_entrega2_deploy.yml a
 # propósito: un deploy y un destroy del mismo ambiente nunca deben correr en
@@ -69,37 +66,53 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check required secrets are set
+      - name: Check required secrets and vars are set
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          TF_STATE_BUCKET_NAME: ${{ secrets.TF_STATE_BUCKET_NAME }}
+          TF_STATE_BUCKET_NAME: ${{ vars.TF_STATE_BUCKET_NAME }}
         run: |
-          required_vars=(AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN DB_USERNAME DB_PASSWORD)
-
+          required_secrets=(AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN DB_USERNAME DB_PASSWORD)
+          # TF_STATE_BUCKET_NAME es una variable (no un secret) — se valida
+          # por separado. Ver comentario de cabecera de ci_entrega2_deploy.yml.
+          required_vars=()
           if [ "${{ inputs.environment }}" = "tutor" ]; then
             required_vars+=(TF_STATE_BUCKET_NAME)
           fi
 
-          missing=()
+          missing_secrets=()
+          for var in "${required_secrets[@]}"; do
+            if [ -z "${!var}" ]; then
+              missing_secrets+=("$var")
+            fi
+          done
+          missing_vars=()
           for var in "${required_vars[@]}"; do
             if [ -z "${!var}" ]; then
-              missing+=("$var")
+              missing_vars+=("$var")
             fi
           done
 
-          if [ ${#missing[@]} -gt 0 ]; then
-            echo "❌ Faltan los siguientes secrets en el repo (Settings → Secrets and variables → Actions):"
-            for var in "${missing[@]}"; do
+          if [ ${#missing_secrets[@]} -gt 0 ]; then
+            echo "❌ Faltan los siguientes secrets en el repo (Settings → Secrets and variables → Actions → Secrets):"
+            for var in "${missing_secrets[@]}"; do
               echo "   - $var"
             done
+          fi
+          if [ ${#missing_vars[@]} -gt 0 ]; then
+            echo "❌ Faltan las siguientes variables en el repo (Settings → Secrets and variables → Actions → Variables):"
+            for var in "${missing_vars[@]}"; do
+              echo "   - $var"
+            done
+          fi
+          if [ ${#missing_secrets[@]} -gt 0 ] || [ ${#missing_vars[@]} -gt 0 ]; then
             exit 1
           fi
 
-          echo "✅ Todos los secrets requeridos están configurados."
+          echo "✅ Todos los secrets y variables requeridos están configurados."
 
       - uses: mikefarah/yq@v4.30.8
 
@@ -308,7 +321,7 @@ jobs:
         env:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          TF_STATE_BUCKET_NAME: ${{ secrets.TF_STATE_BUCKET_NAME }}
+          TF_STATE_BUCKET_NAME: ${{ vars.TF_STATE_BUCKET_NAME }}
           REPO_NAME: ${{ github.repository }}
         run: |
           repo_name="${REPO_NAME##*/}"
