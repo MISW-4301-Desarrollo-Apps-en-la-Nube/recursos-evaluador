@@ -14,11 +14,17 @@ name: Entrega 2 - Deploy (reusable)
 #       se deben aplicar. Por cada nombre debe existir tanto
 #       terraform/stacks/<nombre>/ (el módulo) como
 #       terraform/environments/<environment>/<nombre>/ (con backend.tfvars y
-#       terraform.tfvars, salvo para environment=tutor, que no necesita
-#       backend.tfvars — ver "Caso especial tutor" más abajo) — el pipeline
-#       arma esas dos rutas a partir del nombre, no acepta rutas arbitrarias.
+#       terraform.tfvars) — el pipeline arma esas dos rutas a partir del
+#       nombre, no acepta rutas arbitrarias. Para environment=tutor no hace
+#       falta terraform/environments/tutor/<nombre>/ en absoluto — ver "Caso
+#       especial tutor" más abajo.
 #         tf_stacks:
 #           - apps
+#       default_env: nombre de un ambiente (una de las carpetas de
+#       terraform/environments/, ej. "student1") que se usa como base para
+#       'tutor' — ver "Caso especial tutor" más abajo. Obligatorio siempre
+#       (aunque nunca se despliegue tutor) y no puede ser "tutor".
+#         default_env: student1
 #       k8s_manifests: lista de carpetas con manifiestos de k8s (*.yml) a
 #       aplicar, en orden (rutas relativas a la raíz del repo).
 #         k8s_manifests:
@@ -39,29 +45,22 @@ name: Entrega 2 - Deploy (reusable)
 #   - terraform/.terraform-version con la versión de Terraform a usar.
 #   - Un GitHub Environment llamado igual que el input `environment`.
 #
-# Caso especial "tutor": el ambiente `tutor` no tiene backend.tfvars
-# committeado (el tutor no hace push a este repo, así que nunca configura
-# esa carpeta), así que para ese ambiente el pipeline NO lee bucket/region
-# del backend.tfvars de cada stack. En su lugar usa:
-#   - region: fijo "us-east-1"
-#   - bucket: del secret TF_STATE_BUCKET_NAME (se crea en
-#     bootstrap-state-bucket si no existe, igual que para los demás
-#     ambientes)
-#   - key: "<repo>/<stack>/terraform.tfstate" (repo = nombre de este repo,
-#     para que cada stack tenga su propio state dentro del bucket)
-# terraform.tfvars de cada stack sí sigue leyéndose igual que para cualquier
-# otro ambiente (para cluster_name, etc.) — solo backend.tfvars se
-# reemplaza.
-#
-# Tagging: después de cada `terraform apply`, el pipeline taguea (vía AWS
-# Resource Groups Tagging API, no vía `default_tags` de Terraform) todos los
-# recursos que ese stack gestiona con Environment=<environment>,
-# Repository=<repo> y PipelineRunId=<run id de esta ejecución> — sirve para
-# identificar de qué ambiente/repo/corrida es cada recurso en AWS sin
-# depender de que el HCL del estudiante defina tags, y ci_entrega2_destroy.yml
-# usa esos mismos tags para verificar que no haya quedado nada huérfano
-# después de destruir. Requiere que las credenciales AWS del pipeline tengan
-# permisos tag:TagResources / tag:GetResources.
+# Caso especial "tutor": el ambiente `tutor` no tiene backend.tfvars ni
+# terraform.tfvars committeados (el tutor no hace push a este repo, así que
+# nunca configura terraform/environments/tutor/), así que para ese ambiente
+# el pipeline usa la carpeta terraform/environments/<default_env>/<stack>/
+# (default_env viene de config.yaml) en vez de la de tutor:
+#   - terraform.tfvars: el de default_env, tal cual (para cluster_name,
+#     etc.) — no se pisa nada.
+#   - backend.tfvars: el de default_env se pasa primero como base (por si
+#     trae más valores además de bucket/key/region), y luego se pisan:
+#       - region: fijo "us-east-1"
+#       - bucket: del secret TF_STATE_BUCKET_NAME (se crea en
+#         bootstrap-state-bucket si no existe, igual que para los demás
+#         ambientes)
+#       - key: "<repo>/<stack>/terraform.tfstate" (repo = nombre de este
+#         repo, para que cada stack tenga su propio state dentro del
+#         bucket)
 on:
   workflow_call:
     inputs:
@@ -110,6 +109,7 @@ jobs:
       tf_stacks: ${{ steps.lists.outputs.tf_stacks }}
       k8s_manifests: ${{ steps.lists.outputs.k8s_manifests }}
       apps: ${{ steps.lists.outputs.apps }}
+      default_env: ${{ steps.lists.outputs.default_env }}
       state_buckets: ${{ steps.tf_config.outputs.state_buckets }}
       region: ${{ steps.tf_config.outputs.region }}
       cluster_name: ${{ steps.tf_config.outputs.cluster_name }}
@@ -178,6 +178,7 @@ jobs:
           # para poder usar matrix.app.folder / matrix.app.image_name directo.
           apps=$(yq -o=json -I=0 '.apps // []' config.yaml \
             | jq -c '[.[] | to_entries[0] | {name: .key} + .value]')
+          default_env=$(yq -r '.default_env // ""' config.yaml)
 
           if [ ! -d terraform/stacks ] || [ ! -d terraform/environments ]; then
             echo "❌ Este repo debe tener las carpetas terraform/stacks/ y terraform/environments/ en la raíz."
@@ -199,10 +200,25 @@ jobs:
             echo "❌ Cada entrada de 'apps' en config.yaml debe tener 'folder', 'image_name' e 'image_tag'."
             exit 1
           fi
+          # default_env: ambiente cuyos backend.tfvars/terraform.tfvars se
+          # usan como base para 'tutor' (que no tiene los suyos propios
+          # committeados — ver "Caso especial tutor" más abajo). Se valida
+          # siempre, sin importar qué environment se esté desplegando, para
+          # que un config.yaml roto se detecte apenas se toca, no solo el
+          # día que alguien despliegue tutor.
+          if [ -z "$default_env" ]; then
+            echo "❌ config.yaml no define 'default_env' (nombre de un ambiente de terraform/environments/ a usar como base para 'tutor')."
+            exit 1
+          fi
+          if [ "$default_env" = "tutor" ]; then
+            echo "❌ 'default_env' en config.yaml no puede ser 'tutor' (tutor lo usa como base para sí mismo, sería circular)."
+            exit 1
+          fi
 
           echo "tf_stacks=${tf_stacks}" >> "$GITHUB_OUTPUT"
           echo "k8s_manifests=${k8s_manifests}" >> "$GITHUB_OUTPUT"
           echo "apps=${apps}" >> "$GITHUB_OUTPUT"
+          echo "default_env=${default_env}" >> "$GITHUB_OUTPUT"
 
       - id: tf_config
         name: Descubrir región / bucket(s) de state / cluster para los stacks
@@ -213,13 +229,29 @@ jobs:
           cluster_name=""
           buckets="[]"
 
+          # Para tutor no existe terraform/environments/tutor/ (el tutor no
+          # hace commits): se usa la carpeta de default_env (config.yaml)
+          # como base de backend.tfvars/terraform.tfvars, y solo se pisan
+          # region/bucket con los valores de tutor (ver comentario de
+          # cabecera, "Caso especial tutor").
+          if [ "${{ inputs.environment }}" = "tutor" ]; then
+            env_environment="${{ steps.lists.outputs.default_env }}"
+          else
+            env_environment="${{ inputs.environment }}"
+          fi
+
           for stack_name in $(echo '${{ steps.lists.outputs.tf_stacks }}' | jq -r '.[]'); do
             stack_dir="terraform/stacks/${stack_name}"
-            env_dir="terraform/environments/${{ inputs.environment }}/${stack_name}"
+            env_dir="terraform/environments/${env_environment}/${stack_name}"
+            backend_file="${env_dir}/backend.tfvars"
             tfvars_file="${env_dir}/terraform.tfvars"
 
             if [ ! -d "$stack_dir" ]; then
               echo "❌ No existe ${stack_dir} (esperado para el stack '${stack_name}' listado en tf_stacks)."
+              exit 1
+            fi
+            if [ ! -f "$backend_file" ]; then
+              echo "❌ No existe ${backend_file} (esperado para el stack '${stack_name}', ver comentario al inicio del workflow)."
               exit 1
             fi
 
@@ -227,11 +259,6 @@ jobs:
               stack_region="us-east-1"
               stack_bucket="${TF_STATE_BUCKET_NAME}"
             else
-              backend_file="${env_dir}/backend.tfvars"
-              if [ ! -f "$backend_file" ]; then
-                echo "❌ No existe ${backend_file} (esperado para el stack '${stack_name}', ver comentario al inicio del workflow)."
-                exit 1
-              fi
               stack_region=$(grep '^region' "$backend_file" | cut -d'"' -f2)
               stack_bucket=$(grep '^bucket' "$backend_file" | cut -d'"' -f2)
             fi
@@ -340,26 +367,37 @@ jobs:
           echo '{}' > /tmp/tf_outputs.json
           repo_name="${REPO_NAME##*/}"
 
+          # Para tutor no existe terraform/environments/tutor/: se usa la
+          # carpeta de default_env como base de backend.tfvars/
+          # terraform.tfvars (ver comentario de cabecera, "Caso especial
+          # tutor").
+          if [ "${{ inputs.environment }}" = "tutor" ]; then
+            env_environment="${{ needs.config.outputs.default_env }}"
+          else
+            env_environment="${{ inputs.environment }}"
+          fi
+
           echo '${{ needs.config.outputs.tf_stacks }}' | jq -r '.[]' | while read -r stack_name; do
             stack_dir="terraform/stacks/${stack_name}"
             # terraform/stacks/<nombre> tiene siempre la misma profundidad
             # (3 niveles), así que la ruta de vuelta a la raíz del repo
             # siempre es "../../../" (terraform init/plan corren con
             # working-directory dentro del propio stack).
-            env_dir="../../../terraform/environments/${{ inputs.environment }}/${stack_name}"
+            env_dir="../../../terraform/environments/${env_environment}/${stack_name}"
 
             echo "::group::terraform ($stack_name)"
             pushd "$stack_dir" >/dev/null
 
-            # tutor no tiene backend.tfvars committeado (ver comentario de
-            # cabecera): el backend se arma inline con el secret del bucket
-            # y una key derivada del repo, en vez de apuntar al archivo.
+            # tutor: arranca del backend.tfvars de default_env (por si trae
+            # más valores, ej. "encrypt") y pisa bucket/key/region con los
+            # de tutor — los -backend-config posteriores ganan sobre los
+            # anteriores.
             if [ "${{ inputs.environment }}" = "tutor" ]; then
               terraform init \
+                -backend-config="${env_dir}/backend.tfvars" \
                 -backend-config="bucket=${TF_STATE_BUCKET_NAME}" \
                 -backend-config="key=${repo_name}/${stack_name}/terraform.tfstate" \
-                -backend-config="region=us-east-1" \
-                -backend-config="encrypt=true"
+                -backend-config="region=us-east-1"
             else
               terraform init -backend-config="${env_dir}/backend.tfvars"
             fi
@@ -369,32 +407,6 @@ jobs:
               -var-file="${env_dir}/terraform.tfvars" \
               -out=.tfplan
             terraform apply .tfplan
-
-            # Tagea todos los recursos que este stack acaba de gestionar,
-            # vía la Resource Groups Tagging API — no vía `default_tags` de
-            # Terraform, para que funcione aunque el HCL del estudiante no
-            # lo defina. Los ARNs salen del state (root + módulos anidados,
-            # recursivo por si un módulo llama a otro módulo); no todos los
-            # recursos exponen "arn" (ej. aws_ecr_lifecycle_policy no tiene
-            # uno propio) ni todos los tipos de recurso están soportados por
-            # esta API (ej. IAM tiene su propia API de tags) — por eso se
-            # ignoran los que no tengan arn, y un fallo de tag-resources en
-            # algún tipo no soportado se reporta pero no aborta el deploy.
-            arns=$(terraform show -json | jq -r '
-              def all_resources:
-                (.resources // [])[],
-                ((.child_modules // [])[] | all_resources);
-              .values.root_module | all_resources
-              | select(.values.arn != null) | .values.arn
-            ' | sort -u)
-
-            if [ -n "$arns" ]; then
-              echo "$arns" | xargs -n 20 aws resourcegroupstaggingapi tag-resources \
-                --tags "Environment=${{ inputs.environment }},Repository=${repo_name},PipelineRunId=${{ github.run_id }}" \
-                --resource-arn-list \
-                || echo "⚠️ No se pudieron taguear algunos recursos de '${stack_name}' (tipo no soportado por Resource Groups Tagging API, ej. IAM). No se aborta el deploy por esto."
-            fi
-
             terraform output -json > /tmp/stack_outputs.json
 
             popd >/dev/null

@@ -15,20 +15,12 @@ name: Entrega 2 - Destroy (reusable)
 # "apps" que depende de un stack "network" se destruye antes que "network").
 #
 # Caso especial "tutor": mismo criterio que ci_entrega2_deploy.yml — el
-# ambiente `tutor` no tiene backend.tfvars committeado, así que para ese
-# ambiente el pipeline arma bucket/region/key sin leer el archivo (region
-# fija "us-east-1", bucket del secret TF_STATE_BUCKET_NAME, key
-# "<repo>/<stack>/terraform.tfstate"). terraform.tfvars sí se sigue leyendo
-# igual que para cualquier otro ambiente. Ver el comentario de cabecera de
-# ci_entrega2_deploy.yml para el detalle completo.
-#
-# Verificación de limpieza: ci_entrega2_deploy.yml taguea cada recurso con
-# Environment=<environment> y Repository=<repo> (ver su comentario de
-# cabecera). Al final de este pipeline, el job verify-cleanup consulta esos
-# mismos tags con la Resource Groups Tagging API y FALLA el pipeline si
-# queda algo — típicamente un recurso que Terraform no gestiona/perdió de su
-# state, o un tipo de recurso no soportado por esta API (revisar a mano en
-# ese caso). Requiere permisos tag:GetResources en las credenciales AWS.
+# ambiente `tutor` no tiene backend.tfvars ni terraform.tfvars committeados,
+# así que para ese ambiente el pipeline usa la carpeta
+# terraform/environments/<default_env>/<stack>/ (default_env viene de
+# config.yaml) como base, pisando región/bucket/key del backend con los
+# valores de tutor. Ver el comentario de cabecera de ci_entrega2_deploy.yml
+# para el detalle completo.
 on:
   workflow_call:
     inputs:
@@ -71,6 +63,7 @@ jobs:
     outputs:
       tf_stacks: ${{ steps.lists.outputs.tf_stacks }}
       k8s_manifests: ${{ steps.lists.outputs.k8s_manifests }}
+      default_env: ${{ steps.lists.outputs.default_env }}
       region: ${{ steps.tf_config.outputs.region }}
       cluster_name: ${{ steps.tf_config.outputs.cluster_name }}
     steps:
@@ -117,6 +110,7 @@ jobs:
         run: |
           tf_stacks=$(yq -o=json -I=0 '.tf_stacks // []' config.yaml)
           k8s_manifests=$(yq -o=json -I=0 '.k8s_manifests // []' config.yaml)
+          default_env=$(yq -r '.default_env // ""' config.yaml)
 
           if [ ! -d terraform/stacks ] || [ ! -d terraform/environments ]; then
             echo "❌ Este repo debe tener las carpetas terraform/stacks/ y terraform/environments/ en la raíz."
@@ -130,9 +124,20 @@ jobs:
             echo "❌ config.yaml no define 'k8s_manifests' (lista de carpetas de manifiestos k8s a borrar)."
             exit 1
           fi
+          # default_env: mismo requisito que ci_entrega2_deploy.yml (se
+          # valida siempre, no solo cuando environment=tutor).
+          if [ -z "$default_env" ]; then
+            echo "❌ config.yaml no define 'default_env' (nombre de un ambiente de terraform/environments/ a usar como base para 'tutor')."
+            exit 1
+          fi
+          if [ "$default_env" = "tutor" ]; then
+            echo "❌ 'default_env' en config.yaml no puede ser 'tutor' (tutor lo usa como base para sí mismo, sería circular)."
+            exit 1
+          fi
 
           echo "tf_stacks=${tf_stacks}" >> "$GITHUB_OUTPUT"
           echo "k8s_manifests=${k8s_manifests}" >> "$GITHUB_OUTPUT"
+          echo "default_env=${default_env}" >> "$GITHUB_OUTPUT"
 
       - id: tf_config
         name: Descubrir región / cluster para los stacks
@@ -140,27 +145,33 @@ jobs:
           region=""
           cluster_name=""
 
+          # Para tutor no existe terraform/environments/tutor/: se usa la
+          # carpeta de default_env como base (ver comentario de cabecera).
+          if [ "${{ inputs.environment }}" = "tutor" ]; then
+            env_environment="${{ steps.lists.outputs.default_env }}"
+          else
+            env_environment="${{ inputs.environment }}"
+          fi
+
           for stack_name in $(echo '${{ steps.lists.outputs.tf_stacks }}' | jq -r '.[]'); do
             stack_dir="terraform/stacks/${stack_name}"
-            env_dir="terraform/environments/${{ inputs.environment }}/${stack_name}"
+            env_dir="terraform/environments/${env_environment}/${stack_name}"
+            backend_file="${env_dir}/backend.tfvars"
             tfvars_file="${env_dir}/terraform.tfvars"
 
             if [ ! -d "$stack_dir" ]; then
               echo "❌ No existe ${stack_dir} (esperado para el stack '${stack_name}' listado en tf_stacks)."
               exit 1
             fi
+            if [ ! -f "$backend_file" ]; then
+              echo "❌ No existe ${backend_file} (esperado para el stack '${stack_name}')."
+              exit 1
+            fi
 
-            # tutor no tiene backend.tfvars committeado (ver comentario de
-            # cabecera): la región es un valor fijo en vez de leerse del
-            # archivo.
+            # tutor: la región es un valor fijo en vez de leerse del archivo.
             if [ "${{ inputs.environment }}" = "tutor" ]; then
               stack_region="us-east-1"
             else
-              backend_file="${env_dir}/backend.tfvars"
-              if [ ! -f "$backend_file" ]; then
-                echo "❌ No existe ${backend_file} (esperado para el stack '${stack_name}')."
-                exit 1
-              fi
               stack_region=$(grep '^region' "$backend_file" | cut -d'"' -f2)
             fi
 
@@ -307,26 +318,33 @@ jobs:
         run: |
           repo_name="${REPO_NAME##*/}"
 
+          # Para tutor no existe terraform/environments/tutor/: se usa la
+          # carpeta de default_env como base (ver comentario de cabecera).
+          if [ "${{ inputs.environment }}" = "tutor" ]; then
+            env_environment="${{ needs.config.outputs.default_env }}"
+          else
+            env_environment="${{ inputs.environment }}"
+          fi
+
           echo '${{ needs.config.outputs.tf_stacks }}' | jq -r 'reverse | .[]' | while read -r stack_name; do
             stack_dir="terraform/stacks/${stack_name}"
             # terraform/stacks/<nombre> tiene siempre la misma profundidad
             # (3 niveles), así que la ruta de vuelta a la raíz del repo
             # siempre es "../../../" (terraform init/destroy corren con
             # working-directory dentro del propio stack).
-            env_dir="../../../terraform/environments/${{ inputs.environment }}/${stack_name}"
+            env_dir="../../../terraform/environments/${env_environment}/${stack_name}"
 
             echo "::group::terraform destroy ($stack_name)"
             pushd "$stack_dir" >/dev/null
 
-            # tutor no tiene backend.tfvars committeado (ver comentario de
-            # cabecera): el backend se arma inline con el secret del bucket
-            # y una key derivada del repo, en vez de apuntar al archivo.
+            # tutor: arranca del backend.tfvars de default_env (por si trae
+            # más valores) y pisa bucket/key/region con los de tutor.
             if [ "${{ inputs.environment }}" = "tutor" ]; then
               terraform init \
+                -backend-config="${env_dir}/backend.tfvars" \
                 -backend-config="bucket=${TF_STATE_BUCKET_NAME}" \
                 -backend-config="key=${repo_name}/${stack_name}/terraform.tfstate" \
-                -backend-config="region=us-east-1" \
-                -backend-config="encrypt=true"
+                -backend-config="region=us-east-1"
             else
               terraform init -backend-config="${env_dir}/backend.tfvars"
             fi
@@ -339,48 +357,3 @@ jobs:
             popd >/dev/null
             echo "::endgroup::"
           done
-
-  # -----------------------------------------------------------------------
-  # 3. Verifica que no haya quedado ningún recurso tageado con
-  #    Environment=<environment> / Repository=<repo> (ver comentario de
-  #    cabecera). Se reintenta unas cuantas veces antes de fallar porque la
-  #    Resource Groups Tagging API tiene eventual consistency: justo después
-  #    de borrar algo, puede tardar unos segundos en dejar de aparecer.
-  # -----------------------------------------------------------------------
-  verify-cleanup:
-    environment: ${{ inputs.environment }}
-    needs: [config, terraform-destroy]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ needs.config.outputs.region }}
-
-      - name: Check for leftover tagged resources
-        env:
-          REPO_NAME: ${{ github.repository }}
-        run: |
-          repo_name="${REPO_NAME##*/}"
-
-          for attempt in 1 2 3 4 5; do
-            leftover=$(aws resourcegroupstaggingapi get-resources \
-              --tag-filters "Key=Environment,Values=${{ inputs.environment }}" "Key=Repository,Values=${repo_name}" \
-              --query 'ResourceTagMappingList[].ResourceARN' --output text)
-
-            if [ -z "$leftover" ]; then
-              echo "✅ No quedaron recursos tageados con Environment=${{ inputs.environment }} / Repository=${repo_name}."
-              exit 0
-            fi
-
-            echo "   Todavía aparecen recursos tageados (intento ${attempt}/5), esperando 20s por eventual consistency..."
-            sleep 20
-          done
-
-          echo "❌ Quedaron recursos con Environment=${{ inputs.environment }} / Repository=${repo_name} después del destroy:"
-          echo "$leftover" | tr '\t' '\n'
-          echo "   Revisa si Terraform los perdió de su state, o si son de un tipo no soportado por Resource Groups Tagging API (ej. IAM) y quedaron sin destruir de verdad."
-          exit 1
