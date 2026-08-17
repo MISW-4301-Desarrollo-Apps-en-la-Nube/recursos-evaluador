@@ -344,13 +344,13 @@ jobs:
             pushd "$stack_dir" >/dev/null
 
             if [ "${{ inputs.environment }}" = "tutor" ]; then
-              terraform init \
+              terraform init -reconfigure \
                 -backend-config="${env_dir}/backend.tfvars" \
                 -backend-config="bucket=${TF_STATE_BUCKET_NAME}" \
                 -backend-config="key=${repo_name}/${stack_name}/terraform.tfstate" \
                 -backend-config="region=us-east-1"
             else
-              terraform init -backend-config="${env_dir}/backend.tfvars"
+              terraform init -reconfigure -backend-config="${env_dir}/backend.tfvars"
             fi
             terraform plan \
               -var="db_username=${DB_USERNAME}" \
