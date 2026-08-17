@@ -200,12 +200,6 @@ jobs:
             echo "❌ Cada entrada de 'apps' en config.yaml debe tener 'folder', 'image_name' e 'image_tag'."
             exit 1
           fi
-          # default_env: ambiente cuyos backend.tfvars/terraform.tfvars se
-          # usan como base para 'tutor' (que no tiene los suyos propios
-          # committeados — ver "Caso especial tutor" más abajo). Se valida
-          # siempre, sin importar qué environment se esté desplegando, para
-          # que un config.yaml roto se detecte apenas se toca, no solo el
-          # día que alguien despliegue tutor.
           if [ -z "$default_env" ]; then
             echo "❌ config.yaml no define 'default_env' (nombre de un ambiente de terraform/environments/ a usar como base para 'tutor')."
             exit 1
@@ -229,11 +223,6 @@ jobs:
           cluster_name=""
           buckets="[]"
 
-          # Para tutor no existe terraform/environments/tutor/ (el tutor no
-          # hace commits): se usa la carpeta de default_env (config.yaml)
-          # como base de backend.tfvars/terraform.tfvars, y solo se pisan
-          # region/bucket con los valores de tutor (ver comentario de
-          # cabecera, "Caso especial tutor").
           if [ "${{ inputs.environment }}" = "tutor" ]; then
             env_environment="${{ steps.lists.outputs.default_env }}"
           else
@@ -264,7 +253,11 @@ jobs:
             fi
 
             region="${region:-$stack_region}"
-            buckets=$(echo "$buckets" | jq --arg b "$stack_bucket" --arg r "$stack_region" \
+            # -c (salida compacta, una sola línea): state_buckets se escribe
+            # tal cual a $GITHUB_OUTPUT más abajo, que no admite valores
+            # multi-línea en formato key=value (rompería con "Invalid
+            # format" en la primera línea que no sea la del key=).
+            buckets=$(echo "$buckets" | jq -c --arg b "$stack_bucket" --arg r "$stack_region" \
               '. + [{"bucket": $b, "region": $r}] | unique')
 
             if [ -z "$cluster_name" ] && [ -f "$tfvars_file" ]; then
@@ -367,10 +360,6 @@ jobs:
           echo '{}' > /tmp/tf_outputs.json
           repo_name="${REPO_NAME##*/}"
 
-          # Para tutor no existe terraform/environments/tutor/: se usa la
-          # carpeta de default_env como base de backend.tfvars/
-          # terraform.tfvars (ver comentario de cabecera, "Caso especial
-          # tutor").
           if [ "${{ inputs.environment }}" = "tutor" ]; then
             env_environment="${{ needs.config.outputs.default_env }}"
           else
@@ -388,10 +377,6 @@ jobs:
             echo "::group::terraform ($stack_name)"
             pushd "$stack_dir" >/dev/null
 
-            # tutor: arranca del backend.tfvars de default_env (por si trae
-            # más valores, ej. "encrypt") y pisa bucket/key/region con los
-            # de tutor — los -backend-config posteriores ganan sobre los
-            # anteriores.
             if [ "${{ inputs.environment }}" = "tutor" ]; then
               terraform init \
                 -backend-config="${env_dir}/backend.tfvars" \

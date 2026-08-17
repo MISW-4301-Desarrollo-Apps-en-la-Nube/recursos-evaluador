@@ -79,9 +79,7 @@ jobs:
           TF_STATE_BUCKET_NAME: ${{ secrets.TF_STATE_BUCKET_NAME }}
         run: |
           required_vars=(AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN DB_USERNAME DB_PASSWORD)
-          # Para tutor no hay backend.tfvars del que sacar el bucket de state
-          # (ver comentario de cabecera), así que el secret es obligatorio
-          # solo en ese caso.
+
           if [ "${{ inputs.environment }}" = "tutor" ]; then
             required_vars+=(TF_STATE_BUCKET_NAME)
           fi
@@ -145,8 +143,6 @@ jobs:
           region=""
           cluster_name=""
 
-          # Para tutor no existe terraform/environments/tutor/: se usa la
-          # carpeta de default_env como base (ver comentario de cabecera).
           if [ "${{ inputs.environment }}" = "tutor" ]; then
             env_environment="${{ steps.lists.outputs.default_env }}"
           else
@@ -168,7 +164,6 @@ jobs:
               exit 1
             fi
 
-            # tutor: la región es un valor fijo en vez de leerse del archivo.
             if [ "${{ inputs.environment }}" = "tutor" ]; then
               stack_region="us-east-1"
             else
@@ -318,8 +313,6 @@ jobs:
         run: |
           repo_name="${REPO_NAME##*/}"
 
-          # Para tutor no existe terraform/environments/tutor/: se usa la
-          # carpeta de default_env como base (ver comentario de cabecera).
           if [ "${{ inputs.environment }}" = "tutor" ]; then
             env_environment="${{ needs.config.outputs.default_env }}"
           else
@@ -337,8 +330,6 @@ jobs:
             echo "::group::terraform destroy ($stack_name)"
             pushd "$stack_dir" >/dev/null
 
-            # tutor: arranca del backend.tfvars de default_env (por si trae
-            # más valores) y pisa bucket/key/region con los de tutor.
             if [ "${{ inputs.environment }}" = "tutor" ]; then
               terraform init \
                 -backend-config="${env_dir}/backend.tfvars" \
