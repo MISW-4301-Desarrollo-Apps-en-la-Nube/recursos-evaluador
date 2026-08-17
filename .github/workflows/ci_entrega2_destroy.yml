@@ -21,6 +21,14 @@ name: Entrega 2 - Destroy (reusable)
 # "<repo>/<stack>/terraform.tfstate"). terraform.tfvars sí se sigue leyendo
 # igual que para cualquier otro ambiente. Ver el comentario de cabecera de
 # ci_entrega2_deploy.yml para el detalle completo.
+#
+# Verificación de limpieza: ci_entrega2_deploy.yml taguea cada recurso con
+# Environment=<environment> y Repository=<repo> (ver su comentario de
+# cabecera). Al final de este pipeline, el job verify-cleanup consulta esos
+# mismos tags con la Resource Groups Tagging API y FALLA el pipeline si
+# queda algo — típicamente un recurso que Terraform no gestiona/perdió de su
+# state, o un tipo de recurso no soportado por esta API (revisar a mano en
+# ese caso). Requiere permisos tag:GetResources en las credenciales AWS.
 on:
   workflow_call:
     inputs:
@@ -331,3 +339,48 @@ jobs:
             popd >/dev/null
             echo "::endgroup::"
           done
+
+  # -----------------------------------------------------------------------
+  # 3. Verifica que no haya quedado ningún recurso tageado con
+  #    Environment=<environment> / Repository=<repo> (ver comentario de
+  #    cabecera). Se reintenta unas cuantas veces antes de fallar porque la
+  #    Resource Groups Tagging API tiene eventual consistency: justo después
+  #    de borrar algo, puede tardar unos segundos en dejar de aparecer.
+  # -----------------------------------------------------------------------
+  verify-cleanup:
+    environment: ${{ inputs.environment }}
+    needs: [config, terraform-destroy]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ needs.config.outputs.region }}
+
+      - name: Check for leftover tagged resources
+        env:
+          REPO_NAME: ${{ github.repository }}
+        run: |
+          repo_name="${REPO_NAME##*/}"
+
+          for attempt in 1 2 3 4 5; do
+            leftover=$(aws resourcegroupstaggingapi get-resources \
+              --tag-filters "Key=Environment,Values=${{ inputs.environment }}" "Key=Repository,Values=${repo_name}" \
+              --query 'ResourceTagMappingList[].ResourceARN' --output text)
+
+            if [ -z "$leftover" ]; then
+              echo "✅ No quedaron recursos tageados con Environment=${{ inputs.environment }} / Repository=${repo_name}."
+              exit 0
+            fi
+
+            echo "   Todavía aparecen recursos tageados (intento ${attempt}/5), esperando 20s por eventual consistency..."
+            sleep 20
+          done
+
+          echo "❌ Quedaron recursos con Environment=${{ inputs.environment }} / Repository=${repo_name} después del destroy:"
+          echo "$leftover" | tr '\t' '\n'
+          echo "   Revisa si Terraform los perdió de su state, o si son de un tipo no soportado por Resource Groups Tagging API (ej. IAM) y quedaron sin destruir de verdad."
+          exit 1

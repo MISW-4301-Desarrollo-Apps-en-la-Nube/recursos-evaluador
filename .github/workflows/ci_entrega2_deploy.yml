@@ -52,6 +52,16 @@ name: Entrega 2 - Deploy (reusable)
 # terraform.tfvars de cada stack sí sigue leyéndose igual que para cualquier
 # otro ambiente (para cluster_name, etc.) — solo backend.tfvars se
 # reemplaza.
+#
+# Tagging: después de cada `terraform apply`, el pipeline taguea (vía AWS
+# Resource Groups Tagging API, no vía `default_tags` de Terraform) todos los
+# recursos que ese stack gestiona con Environment=<environment>,
+# Repository=<repo> y PipelineRunId=<run id de esta ejecución> — sirve para
+# identificar de qué ambiente/repo/corrida es cada recurso en AWS sin
+# depender de que el HCL del estudiante defina tags, y ci_entrega2_destroy.yml
+# usa esos mismos tags para verificar que no haya quedado nada huérfano
+# después de destruir. Requiere que las credenciales AWS del pipeline tengan
+# permisos tag:TagResources / tag:GetResources.
 on:
   workflow_call:
     inputs:
@@ -359,6 +369,32 @@ jobs:
               -var-file="${env_dir}/terraform.tfvars" \
               -out=.tfplan
             terraform apply .tfplan
+
+            # Tagea todos los recursos que este stack acaba de gestionar,
+            # vía la Resource Groups Tagging API — no vía `default_tags` de
+            # Terraform, para que funcione aunque el HCL del estudiante no
+            # lo defina. Los ARNs salen del state (root + módulos anidados,
+            # recursivo por si un módulo llama a otro módulo); no todos los
+            # recursos exponen "arn" (ej. aws_ecr_lifecycle_policy no tiene
+            # uno propio) ni todos los tipos de recurso están soportados por
+            # esta API (ej. IAM tiene su propia API de tags) — por eso se
+            # ignoran los que no tengan arn, y un fallo de tag-resources en
+            # algún tipo no soportado se reporta pero no aborta el deploy.
+            arns=$(terraform show -json | jq -r '
+              def all_resources:
+                (.resources // [])[],
+                ((.child_modules // [])[] | all_resources);
+              .values.root_module | all_resources
+              | select(.values.arn != null) | .values.arn
+            ' | sort -u)
+
+            if [ -n "$arns" ]; then
+              echo "$arns" | xargs -n 20 aws resourcegroupstaggingapi tag-resources \
+                --tags "Environment=${{ inputs.environment }},Repository=${repo_name},PipelineRunId=${{ github.run_id }}" \
+                --resource-arn-list \
+                || echo "⚠️ No se pudieron taguear algunos recursos de '${stack_name}' (tipo no soportado por Resource Groups Tagging API, ej. IAM). No se aborta el deploy por esto."
+            fi
+
             terraform output -json > /tmp/stack_outputs.json
 
             popd >/dev/null
