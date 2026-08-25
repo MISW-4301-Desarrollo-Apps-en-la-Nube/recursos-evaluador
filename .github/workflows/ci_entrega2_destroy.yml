@@ -315,8 +315,16 @@ jobs:
           aws-region: ${{ needs.config.outputs.region }}
 
       - name: Read required Terraform version
+        # terraform/.terraform-version es opcional: si el repo no lo tiene,
+        # se usa 1.12.0 como versión por defecto.
         id: tf_version
-        run: echo "version=$(cat terraform/.terraform-version)" >> "$GITHUB_OUTPUT"
+        run: |
+          if [ -f terraform/.terraform-version ]; then
+            version=$(cat terraform/.terraform-version)
+          else
+            version="1.12.0"
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
 
       - uses: hashicorp/setup-terraform@v3
         with:
