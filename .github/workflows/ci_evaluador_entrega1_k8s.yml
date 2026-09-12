@@ -62,6 +62,7 @@ jobs:
       if: always() && steps.minikube.conclusion == 'success'
       run: |
         if [ -f ./${USERS_FOLDER}/Dockerfile ]; then
+          export DOCKER_BUILDKIT=0
           eval $(minikube docker-env)
           docker build -t ${USERS_IMAGE}:${USERS_VERSION} -f ${USERS_FOLDER}/Dockerfile ${USERS_FOLDER}
         else
@@ -73,6 +74,7 @@ jobs:
       if: always() && steps.minikube.conclusion == 'success'
       run: |
         if [ -f ./${POSTS_FOLDER}/Dockerfile ]; then
+          export DOCKER_BUILDKIT=0
           eval $(minikube docker-env)
           docker build -t ${POSTS_IMAGE}:${POSTS_VERSION} -f ${POSTS_FOLDER}/Dockerfile ${POSTS_FOLDER}
         else
@@ -84,6 +86,7 @@ jobs:
       if: always() && steps.minikube.conclusion == 'success'
       run: |
         if [ -f ./${OFFERS_FOLDER}/Dockerfile ]; then
+          export DOCKER_BUILDKIT=0
           eval $(minikube docker-env)
           docker build -t ${OFFERS_IMAGE}:${OFFERS_VERSION} -f ${OFFERS_FOLDER}/Dockerfile ${OFFERS_FOLDER}
         else
@@ -95,6 +98,7 @@ jobs:
       if: always() && steps.minikube.conclusion == 'success'
       run: |
         if [ -f ./${ROUTES_FOLDER}/Dockerfile ]; then
+          export DOCKER_BUILDKIT=0
           eval $(minikube docker-env)
           docker build -t ${ROUTES_IMAGE}:${ROUTES_VERSION} -f ${ROUTES_FOLDER}/Dockerfile ${ROUTES_FOLDER}
         else
