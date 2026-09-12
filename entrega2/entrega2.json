@@ -2234,9 +2234,9 @@
 									}
 								},
 								"url": {
-									"raw": "{{POSTS_PATH}}/posts",
+									"raw": "{{BASE_PATH}}/posts",
 									"host": [
-										"{{POSTS_PATH}}"
+										"{{BASE_PATH}}"
 									],
 									"path": [
 										"posts"
@@ -6088,7 +6088,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{BASE_PATH}}/posts?owner=me",
+									"raw": "{{BASE_PATH}}/posts?owner={{1_USER_ID}}",
 									"host": [
 										"{{BASE_PATH}}"
 									],
@@ -6098,7 +6098,7 @@
 									"query": [
 										{
 											"key": "owner",
-											"value": "me"
+											"value": "{{1_USER_ID}}"
 										}
 									]
 								}
