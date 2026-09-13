@@ -298,6 +298,12 @@ jobs:
   # 2. terraform destroy de cada stack en tf_stacks, en orden INVERSO al del
   #    deploy (se lleva EKS, RDS, Secrets Manager, repos ECR, etc., según lo
   #    que gestione cada stack).
+  #
+  #    El secret "secrets-pipeline-native-map" que crea ci_entrega2_deploy.yml
+  #    NO se toca acá a propósito: se crea con AWS CLI (no con terraform, no
+  #    vive en el state de ningún stack), justamente para que sobreviva a
+  #    este destroy y no haya que recrearlo en cada deploy (ver el comentario
+  #    de cabecera de ci_entrega2_deploy.yml).
   # -----------------------------------------------------------------------
   terraform-destroy:
     environment: ${{ inputs.environment }}

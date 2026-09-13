@@ -52,6 +52,12 @@ name: Entrega 2 - Deploy (reusable)
 # `aws s3api create-bucket ...` + `put-bucket-versioning`) antes de correr
 # el deploy.
 #
+# Secret "secrets-pipeline-native-map": como paso temprano del job
+# `terraform`, este pipeline sube TODOS los secrets configurados para el
+# ambiente (excepto AWS_* y GITHUB_TOKEN) a un único secret de Secrets
+# Manager con este nombre secrets-pipeline-native-map Este secret NO se gestiona con
+# terraform y por lo tanto NO se destruye en ci_entrega2_destroy.yml.
+#
 # Caso especial "tutor": el ambiente `tutor` no tiene backend.tfvars ni
 # terraform.tfvars committeados (el tutor no hace push a este repo, así que
 # nunca configura terraform/environments/tutor/), así que para ese ambiente
@@ -329,6 +335,27 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ steps.tf_version.outputs.version }}
+
+      - name: Store non-AWS secrets in Secrets Manager
+        # Sube TODOS los secrets configurados para este ambiente a
+        # un único secret de Secrets Manager, como un JSON {clave: valor}.
+        env:
+          ALL_SECRETS_JSON: ${{ toJSON(secrets) }}
+        run: |
+          secret_name="secrets-pipeline-native-map"
+
+          secret_json=$(echo "$ALL_SECRETS_JSON" \
+            | jq 'with_entries(select(((.key | test("^AWS_")) or (.key == "GITHUB_TOKEN")) | not))')
+
+          if aws secretsmanager describe-secret --secret-id "$secret_name" >/dev/null 2>&1; then
+            aws secretsmanager put-secret-value \
+              --secret-id "$secret_name" \
+              --secret-string "$secret_json" >/dev/null
+          else
+            aws secretsmanager create-secret \
+              --name "$secret_name" \
+              --secret-string "$secret_json" >/dev/null
+          fi
 
       - name: Apply each terraform stack, in order
         id: apply
