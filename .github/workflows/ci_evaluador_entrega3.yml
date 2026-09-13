@@ -34,6 +34,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check required secrets are set
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          EMAIL_TO_NOTIFY: ${{ secrets.EMAIL_TO_NOTIFY }}
+        run: |
+          required_secrets=(AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN EMAIL_TO_NOTIFY)
+
+          missing_secrets=()
+          for var in "${required_secrets[@]}"; do
+            if [ -z "${!var}" ]; then
+              missing_secrets+=("$var")
+            fi
+          done
+
+          if [ ${#missing_secrets[@]} -gt 0 ]; then
+            echo "❌ Faltan los siguientes secrets en el repo (Settings → Secrets and variables → Actions → Secrets):"
+            for var in "${missing_secrets[@]}"; do
+              echo "   - $var"
+            done
+            exit 1
+          fi
+
+          echo "✅ Todos los secrets requeridos están configurados."
+
       - name: Set up Node.js
         uses: actions/setup-node@v1
         with:
