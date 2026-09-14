@@ -228,8 +228,15 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ needs.config.outputs.region }}
 
+      - name: Checkout recursos-evaluador (actions)
+        uses: actions/checkout@v4
+        with:
+          repository: MISW-4301-Desarrollo-Apps-en-la-Nube/recursos-evaluador
+          ref: main
+          path: .recursos-evaluador
+
       - name: Destroy post_k8s_stacks
-        uses: ./.github/actions/destroy-terraform-stacks
+        uses: ./.recursos-evaluador/.github/actions/destroy-terraform-stacks
         with:
           stacks-json: ${{ needs.config.outputs.post_k8s_stacks }}
           environment: ${{ inputs.environment }}
@@ -356,8 +363,15 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ needs.config.outputs.region }}
 
+      - name: Checkout recursos-evaluador (actions)
+        uses: actions/checkout@v4
+        with:
+          repository: MISW-4301-Desarrollo-Apps-en-la-Nube/recursos-evaluador
+          ref: main
+          path: .recursos-evaluador
+
       - name: Destroy tf_stacks
-        uses: ./.github/actions/destroy-terraform-stacks
+        uses: ./.recursos-evaluador/.github/actions/destroy-terraform-stacks
         with:
           stacks-json: ${{ needs.config.outputs.tf_stacks }}
           environment: ${{ inputs.environment }}

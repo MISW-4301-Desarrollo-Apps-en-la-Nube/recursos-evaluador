@@ -362,9 +362,16 @@ jobs:
               --secret-string "$secret_json" >/dev/null
           fi
 
+      - name: Checkout recursos-evaluador (actions)
+        uses: actions/checkout@v4
+        with:
+          repository: MISW-4301-Desarrollo-Apps-en-la-Nube/recursos-evaluador
+          ref: main
+          path: .recursos-evaluador
+
       - name: Apply tf_stacks
         id: apply
-        uses: ./.github/actions/apply-terraform-stacks
+        uses: ./.recursos-evaluador/.github/actions/apply-terraform-stacks
         with:
           stacks-json: ${{ needs.config.outputs.tf_stacks }}
           environment: ${{ inputs.environment }}
@@ -536,8 +543,15 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ needs.config.outputs.region }}
 
+      - name: Checkout recursos-evaluador (actions)
+        uses: actions/checkout@v4
+        with:
+          repository: MISW-4301-Desarrollo-Apps-en-la-Nube/recursos-evaluador
+          ref: main
+          path: .recursos-evaluador
+
       - name: Apply post_k8s_stacks
-        uses: ./.github/actions/apply-terraform-stacks
+        uses: ./.recursos-evaluador/.github/actions/apply-terraform-stacks
         with:
           stacks-json: ${{ needs.config.outputs.post_k8s_stacks }}
           environment: ${{ inputs.environment }}
