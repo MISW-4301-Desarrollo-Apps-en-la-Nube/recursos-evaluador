@@ -42,6 +42,16 @@ name: Entrega 2 - Deploy (reusable)
 #               folder: offers_app
 #               image_name: offers-app
 #               image_tag: 1.0.0
+#       post_k8s_stacks: opcional (backward compatible: si no está, se omite
+#       por completo y el pipeline se comporta exactamente igual que antes).
+#       Misma forma que tf_stacks (lista de NOMBRES de stack), pero estos se
+#       aplican DESPUÉS de deploy-k8s en vez de antes. Úsenlo para stacks que
+#       necesiten algo que solo existe una vez que k8s ya está desplegado
+#       (ej. el hostname del ELB de ingress-nginx, vía un data source que lo
+#       descubra por tags — así ya no hay problema de orden: cuando este
+#       stack corre, el ingress ya existe).
+#         post_k8s_stacks:
+#           - events
 #   - terraform/.terraform-version con la versión de Terraform a usar
 #     (opcional — si no está, se usa 1.12.0 por defecto).
 #   - Un GitHub Environment llamado igual que el input `environment`.
@@ -120,6 +130,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tf_stacks: ${{ steps.lists.outputs.tf_stacks }}
+      post_k8s_stacks: ${{ steps.lists.outputs.post_k8s_stacks }}
       k8s_manifests: ${{ steps.lists.outputs.k8s_manifests }}
       apps: ${{ steps.lists.outputs.apps }}
       default_env: ${{ steps.lists.outputs.default_env }}
@@ -202,6 +213,7 @@ jobs:
         name: Leer tf_stacks / k8s_manifests / apps de config.yaml
         run: |
           tf_stacks=$(yq -o=json -I=0 '.tf_stacks // []' config.yaml)
+          post_k8s_stacks=$(yq -o=json -I=0 '.post_k8s_stacks // []' config.yaml)
           k8s_manifests=$(yq -o=json -I=0 '.k8s_manifests // []' config.yaml)
           # config.yaml trae "apps" como una lista de objetos de una sola
           # clave, ej. [{"offers_app": {"folder": ..., "image_name": ...}}].
@@ -239,8 +251,17 @@ jobs:
             echo "❌ 'default_env' en config.yaml no puede ser 'tutor' (tutor lo usa como base para sí mismo, sería circular)."
             exit 1
           fi
+          # post_k8s_stacks es opcional, pero si trae nombres deben existir
+          # como carpeta de stack igual que los de tf_stacks.
+          for stack_name in $(echo "$post_k8s_stacks" | jq -r '.[]'); do
+            if [ ! -d "terraform/stacks/${stack_name}" ]; then
+              echo "❌ No existe terraform/stacks/${stack_name} (esperado para el stack '${stack_name}' listado en post_k8s_stacks)."
+              exit 1
+            fi
+          done
 
           echo "tf_stacks=${tf_stacks}" >> "$GITHUB_OUTPUT"
+          echo "post_k8s_stacks=${post_k8s_stacks}" >> "$GITHUB_OUTPUT"
           echo "k8s_manifests=${k8s_manifests}" >> "$GITHUB_OUTPUT"
           echo "apps=${apps}" >> "$GITHUB_OUTPUT"
           echo "default_env=${default_env}" >> "$GITHUB_OUTPUT"
@@ -308,7 +329,7 @@ jobs:
     needs: config
     runs-on: ubuntu-latest
     outputs:
-      tf_outputs: ${{ steps.apply.outputs.json }}
+      tf_outputs: ${{ steps.apply.outputs.tf-outputs }}
     steps:
       - uses: actions/checkout@v4
 
@@ -319,22 +340,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ needs.config.outputs.region }}
-
-      - name: Read required Terraform version
-        # terraform/.terraform-version es opcional: si el repo no lo tiene,
-        # se usa 1.12.0 como versión por defecto.
-        id: tf_version
-        run: |
-          if [ -f terraform/.terraform-version ]; then
-            version=$(cat terraform/.terraform-version)
-          else
-            version="1.12.0"
-          fi
-          echo "version=${version}" >> "$GITHUB_OUTPUT"
-
-      - uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ steps.tf_version.outputs.version }}
 
       - name: Store non-AWS secrets in Secrets Manager
         # Sube TODOS los secrets configurados para este ambiente a
@@ -357,74 +362,16 @@ jobs:
               --secret-string "$secret_json" >/dev/null
           fi
 
-      - name: Apply each terraform stack, in order
+      - name: Apply tf_stacks
         id: apply
-        env:
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          TF_STATE_BUCKET_NAME: ${{ vars.TF_STATE_BUCKET_NAME }}
-          REPO_NAME: ${{ github.repository }}
-        run: |
-          echo '{}' > /tmp/tf_outputs.json
-          repo_name="${REPO_NAME##*/}"
-
-          if [ "${{ inputs.environment }}" = "tutor" ]; then
-            env_environment="${{ needs.config.outputs.default_env }}"
-          else
-            env_environment="${{ inputs.environment }}"
-          fi
-
-          # DB_USERNAME/DB_PASSWORD son opcionales (ver "Check required
-          # secrets and vars are set"): solo se pasan a terraform si vienen
-          # configurados, para no generar un warning de "value for
-          # undeclared variable" en stacks que no las usan (equipos que
-          # hardcodean las credenciales en su HCL en vez de usar variables).
-          db_vars=()
-          if [ -n "$DB_USERNAME" ]; then
-            db_vars+=("-var=db_username=${DB_USERNAME}")
-          fi
-          if [ -n "$DB_PASSWORD" ]; then
-            db_vars+=("-var=db_password=${DB_PASSWORD}")
-          fi
-
-          echo '${{ needs.config.outputs.tf_stacks }}' | jq -r '.[]' | while read -r stack_name; do
-            stack_dir="terraform/stacks/${stack_name}"
-            # terraform/stacks/<nombre> tiene siempre la misma profundidad
-            # (3 niveles), así que la ruta de vuelta a la raíz del repo
-            # siempre es "../../../" (terraform init/plan corren con
-            # working-directory dentro del propio stack).
-            env_dir="../../../terraform/environments/${env_environment}/${stack_name}"
-
-            echo "::group::terraform ($stack_name)"
-            pushd "$stack_dir" >/dev/null
-
-            if [ "${{ inputs.environment }}" = "tutor" ]; then
-              terraform init -reconfigure \
-                -backend-config="${env_dir}/backend.tfvars" \
-                -backend-config="bucket=${TF_STATE_BUCKET_NAME}" \
-                -backend-config="key=${repo_name}/${stack_name}/terraform.tfstate" \
-                -backend-config="region=us-east-1"
-            else
-              terraform init -reconfigure -backend-config="${env_dir}/backend.tfvars"
-            fi
-            terraform plan \
-              "${db_vars[@]}" \
-              -var-file="${env_dir}/terraform.tfvars" \
-              -out=.tfplan
-            terraform apply .tfplan
-            terraform output -json > /tmp/stack_outputs.json
-
-            popd >/dev/null
-            echo "::endgroup::"
-
-            # Aplana {name: {value, type, sensitive}} a {name: value} y lo
-            # combina con lo acumulado de stacks anteriores.
-            jq -s '.[0] * (.[1] | map_values(.value))' \
-              /tmp/tf_outputs.json /tmp/stack_outputs.json > /tmp/tf_outputs_new.json
-            mv /tmp/tf_outputs_new.json /tmp/tf_outputs.json
-          done
-
-          echo "json=$(jq -c '.' /tmp/tf_outputs.json)" >> "$GITHUB_OUTPUT"
+        uses: ./.github/actions/apply-terraform-stacks
+        with:
+          stacks-json: ${{ needs.config.outputs.tf_stacks }}
+          environment: ${{ inputs.environment }}
+          default-env: ${{ needs.config.outputs.default_env }}
+          tf-state-bucket-name: ${{ vars.TF_STATE_BUCKET_NAME }}
+          db-username: ${{ secrets.DB_USERNAME }}
+          db-password: ${{ secrets.DB_PASSWORD }}
 
   # -----------------------------------------------------------------------
   # Build + push de las imágenes a ECR (equivalente a dkbuild + dkpush).
@@ -564,3 +511,38 @@ jobs:
           while read -r res; do
             kubectl rollout status "$res" --timeout=180s
           done < /tmp/deployments.txt
+
+  # -----------------------------------------------------------------------
+  # 3. Terraform init / plan / apply de cada stack en post_k8s_stacks (si
+  #    config.yaml define alguno), DESPUÉS de deploy-k8s. Sigue combinando
+  #    sobre los outputs de tf_stacks (needs.terraform.outputs.tf_outputs).
+  #    Solo corre si post_k8s_stacks no está vacío — si config.yaml no lo
+  #    define, este job se omite por completo y el pipeline se comporta
+  #    exactamente igual que antes de que existiera esta funcionalidad.
+  # -----------------------------------------------------------------------
+  terraform-post-k8s:
+    environment: ${{ inputs.environment }}
+    needs: [config, terraform, deploy-k8s]
+    if: needs.config.outputs.post_k8s_stacks != '[]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ needs.config.outputs.region }}
+
+      - name: Apply post_k8s_stacks
+        uses: ./.github/actions/apply-terraform-stacks
+        with:
+          stacks-json: ${{ needs.config.outputs.post_k8s_stacks }}
+          environment: ${{ inputs.environment }}
+          default-env: ${{ needs.config.outputs.default_env }}
+          tf-state-bucket-name: ${{ vars.TF_STATE_BUCKET_NAME }}
+          db-username: ${{ secrets.DB_USERNAME }}
+          db-password: ${{ secrets.DB_PASSWORD }}
+          previous-outputs-json: ${{ needs.terraform.outputs.tf_outputs }}

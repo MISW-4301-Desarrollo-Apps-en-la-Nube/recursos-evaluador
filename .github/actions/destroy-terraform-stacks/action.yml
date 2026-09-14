@@ -1,0 +1,107 @@
+name: Destroy terraform stacks
+description: >
+  Hace terraform init/destroy de una lista de stacks (nombres, no rutas), en
+  orden INVERSO al de la lista recibida (el último se destruye primero).
+  Asume que el job que invoca esta action ya hizo checkout del repo y ya
+  configuró credenciales de AWS (con aws-actions/configure-aws-credentials).
+  Reusada por ci_entrega2_destroy.yml tanto para `post_k8s_stacks` (antes de
+  tocar k8s) como para `tf_stacks` (después), para no duplicar esta lógica
+  dos veces en el mismo workflow.
+
+inputs:
+  stacks-json:
+    description: 'JSON array con los nombres de los stacks a destruir (se recorren en orden inverso)'
+    required: true
+  environment:
+    description: 'Ambiente a destruir (student1..4 o tutor)'
+    required: true
+  default-env:
+    description: 'Ambiente base (terraform/environments/<default-env>/) a usar cuando environment=tutor'
+    required: true
+  tf-state-bucket-name:
+    description: 'Bucket de state a usar cuando environment=tutor. Vacío en los demás ambientes.'
+    required: false
+    default: ''
+  db-username:
+    description: 'Usuario de la base de datos. Opcional, solo se pasa a terraform si viene configurado.'
+    required: false
+    default: ''
+  db-password:
+    description: 'Contraseña de la base de datos. Opcional, solo se pasa a terraform si viene configurado.'
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Read required Terraform version
+      # terraform/.terraform-version es opcional: si el repo no lo tiene,
+      # se usa 1.12.0 como versión por defecto.
+      id: tf_version
+      shell: bash
+      run: |
+        if [ -f terraform/.terraform-version ]; then
+          version=$(cat terraform/.terraform-version)
+        else
+          version="1.12.0"
+        fi
+        echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ steps.tf_version.outputs.version }}
+
+    - name: Destroy each terraform stack, in reverse order
+      shell: bash
+      env:
+        DB_USERNAME: ${{ inputs.db-username }}
+        DB_PASSWORD: ${{ inputs.db-password }}
+        TF_STATE_BUCKET_NAME: ${{ inputs.tf-state-bucket-name }}
+        REPO_NAME: ${{ github.repository }}
+      run: |
+        repo_name="${REPO_NAME##*/}"
+
+        if [ "${{ inputs.environment }}" = "tutor" ]; then
+          env_environment="${{ inputs.default-env }}"
+        else
+          env_environment="${{ inputs.environment }}"
+        fi
+
+        # DB_USERNAME/DB_PASSWORD son opcionales, solo se pasan a terraform
+        # si vienen configurados.
+        db_vars=()
+        if [ -n "$DB_USERNAME" ]; then
+          db_vars+=("-var=db_username=${DB_USERNAME}")
+        fi
+        if [ -n "$DB_PASSWORD" ]; then
+          db_vars+=("-var=db_password=${DB_PASSWORD}")
+        fi
+
+        echo '${{ inputs.stacks-json }}' | jq -r 'reverse | .[]' | while read -r stack_name; do
+          stack_dir="terraform/stacks/${stack_name}"
+          # terraform/stacks/<nombre> tiene siempre la misma profundidad
+          # (3 niveles), así que la ruta de vuelta a la raíz del repo
+          # siempre es "../../../" (terraform init/destroy corren con
+          # working-directory dentro del propio stack).
+          env_dir="../../../terraform/environments/${env_environment}/${stack_name}"
+
+          echo "::group::terraform destroy ($stack_name)"
+          pushd "$stack_dir" >/dev/null
+
+          if [ "${{ inputs.environment }}" = "tutor" ]; then
+            terraform init -reconfigure \
+              -backend-config="${env_dir}/backend.tfvars" \
+              -backend-config="bucket=${TF_STATE_BUCKET_NAME}" \
+              -backend-config="key=${repo_name}/${stack_name}/terraform.tfstate" \
+              -backend-config="region=us-east-1"
+          else
+            terraform init -reconfigure -backend-config="${env_dir}/backend.tfvars"
+          fi
+          terraform destroy \
+            "${db_vars[@]}" \
+            -var-file="${env_dir}/terraform.tfvars" \
+            -auto-approve
+
+          popd >/dev/null
+          echo "::endgroup::"
+        done
