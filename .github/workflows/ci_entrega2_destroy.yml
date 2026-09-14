@@ -252,6 +252,10 @@ jobs:
   teardown-k8s:
     environment: ${{ inputs.environment }}
     needs: [config, terraform-post-k8s-destroy]
+    if: |
+      always() &&
+      needs.config.result == 'success' &&
+      (needs.terraform-post-k8s-destroy.result == 'success' || needs.terraform-post-k8s-destroy.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -336,6 +340,10 @@ jobs:
   terraform-destroy:
     environment: ${{ inputs.environment }}
     needs: [config, teardown-k8s]
+    if: |
+      always() &&
+      needs.config.result == 'success' &&
+      (needs.teardown-k8s.result == 'success' || needs.teardown-k8s.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
