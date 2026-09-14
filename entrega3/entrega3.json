@@ -517,6 +517,43 @@
 			"name": "RF-006 Tarjetas",
 			"item": [
 				{
+					"name": "Reset users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_PATH}}/users/reset",
+							"host": [
+								"{{BASE_PATH}}"
+							],
+							"path": [
+								"users",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Configurar Truenative para que devuelva VERIFICADO",
 					"event": [
 						{
