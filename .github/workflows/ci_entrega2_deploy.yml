@@ -345,7 +345,7 @@ jobs:
           secret_name="secrets-pipeline-native-map"
 
           secret_json=$(echo "$ALL_SECRETS_JSON" \
-            | jq 'with_entries(select(((.key | test("^AWS_")) or (.key == "GITHUB_TOKEN")) | not))')
+            | jq 'with_entries(select(((.key | test("^AWS_"; "i")) or (.key | ascii_downcase == "github_token")) | not))')
 
           if aws secretsmanager describe-secret --secret-id "$secret_name" >/dev/null 2>&1; then
             aws secretsmanager put-secret-value \

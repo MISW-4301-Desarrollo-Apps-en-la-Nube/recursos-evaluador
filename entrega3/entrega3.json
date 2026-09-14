@@ -172,11 +172,16 @@
 									"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
 									"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
 									"",
+									"const [emailLocal, emailDomain] = pm.variables.replaceIn(\"{{EMAIL}}\").split('@');",
+									"const emailPrefix = pm.variables.replaceIn(\"{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}\").toLowerCase();",
+									"const userEmail = `${emailLocal}+${emailPrefix}@${emailDomain}`;",
+									"",
 									"pm.collectionVariables.set('USER_USERNAME', username);",
 									"pm.collectionVariables.set('USER_PASSWORD', password);",
 									"pm.collectionVariables.set('USER_DNI', dni);",
 									"pm.collectionVariables.set('USER_FULLNAME', fullname);",
-									"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);"
+									"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);",
+									"pm.collectionVariables.set('USER_EMAIL', userEmail);"
 								],
 								"type": "text/javascript"
 							}
@@ -187,7 +192,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
+							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{USER_EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
