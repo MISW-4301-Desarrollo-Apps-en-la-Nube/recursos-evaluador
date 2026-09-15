@@ -166,19 +166,22 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"const email = pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase();",
 									"const username = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
 									"const password = pm.variables.replaceIn(\"{{$randomPassword}}\").toLowerCase();",
 									"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
 									"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
 									"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
 									"",
-									"pm.collectionVariables.set('USER_EMAIL', email);",
+									"const [emailLocal, emailDomain] = pm.variables.replaceIn(\"{{EMAIL}}\").split('@');",
+									"const emailPrefix = pm.variables.replaceIn(\"{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}\").toLowerCase();",
+									"const userEmail = `${emailLocal}+${emailPrefix}@${emailDomain}`;",
+									"",
 									"pm.collectionVariables.set('USER_USERNAME', username);",
 									"pm.collectionVariables.set('USER_PASSWORD', password);",
 									"pm.collectionVariables.set('USER_DNI', dni);",
 									"pm.collectionVariables.set('USER_FULLNAME', fullname);",
-									"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);"
+									"pm.collectionVariables.set('USER_PHONENUMBER', phonenumber);",
+									"pm.collectionVariables.set('USER_EMAIL', userEmail);"
 								],
 								"type": "text/javascript"
 							}
@@ -370,14 +373,12 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"const email = pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase();",
 									"const username = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
 									"const password = pm.variables.replaceIn(\"{{$randomPassword}}\").toLowerCase();",
 									"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
 									"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
 									"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
 									"",
-									"pm.collectionVariables.set('USER_EMAIL', email);",
 									"pm.collectionVariables.set('USER_USERNAME', username);",
 									"pm.collectionVariables.set('USER_PASSWORD', password);",
 									"pm.collectionVariables.set('USER_DNI', dni);",
@@ -393,7 +394,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{USER_EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
+							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -516,6 +517,43 @@
 			"name": "RF-006 Tarjetas",
 			"item": [
 				{
+					"name": "Reset users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_PATH}}/users/reset",
+							"host": [
+								"{{BASE_PATH}}"
+							],
+							"path": [
+								"users",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Configurar Truenative para que devuelva VERIFICADO",
 					"event": [
 						{
@@ -592,14 +630,12 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"const email = pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase();",
 									"const username = pm.variables.replaceIn(\"{{$randomDomainWord}}\").toLowerCase();",
 									"const password = pm.variables.replaceIn(\"{{$randomPassword}}\").toLowerCase();",
 									"const dni = pm.variables.replaceIn(\"{{$randomInt}}\");",
 									"const fullname = pm.variables.replaceIn(\"{{$randomFullName}}\").toLowerCase();",
 									"const phonenumber = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\").replaceAll('-', '');",
 									"",
-									"pm.collectionVariables.set('USER_EMAIL', email);",
 									"pm.collectionVariables.set('USER_USERNAME', username);",
 									"pm.collectionVariables.set('USER_PASSWORD', password);",
 									"pm.collectionVariables.set('USER_DNI', dni);",
@@ -615,7 +651,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{USER_EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
+							"raw": "{\n    \"username\": \"{{USER_USERNAME}}\",\n    \"password\": \"{{USER_PASSWORD}}\",\n    \"email\": \"{{EMAIL}}\",\n    \"dni\": \"{{USER_DNI}}\",\n    \"fullName\": \"{{USER_FULLNAME}}\",\n    \"phoneNumber\": \"{{USER_PHONENUMBER}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1745,6 +1781,11 @@
 	"variable": [
 		{
 			"key": "BASE_PATH",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "EMAIL",
 			"value": "",
 			"type": "string"
 		}

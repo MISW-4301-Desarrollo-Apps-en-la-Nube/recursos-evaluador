@@ -1,0 +1,134 @@
+name: Apply terraform stacks
+description: >
+  Hace terraform init/plan/apply de una lista de stacks (nombres, no rutas),
+  en el orden dado, combinando los outputs de todos en un único mapa JSON.
+  Asume que el job que invoca esta action ya hizo checkout del repo y ya
+  configuró credenciales de AWS (con aws-actions/configure-aws-credentials).
+  Reusada por ci_entrega2_deploy.yml tanto para `tf_stacks` (antes de
+  desplegar k8s) como para `post_k8s_stacks` (después), para no duplicar
+  esta lógica dos veces en el mismo workflow.
+
+inputs:
+  stacks-json:
+    description: 'JSON array con los nombres de los stacks a aplicar, en orden'
+    required: true
+  environment:
+    description: 'Ambiente a desplegar (student1..4 o tutor)'
+    required: true
+  default-env:
+    description: 'Ambiente base (terraform/environments/<default-env>/) a usar cuando environment=tutor'
+    required: true
+  tf-state-bucket-name:
+    description: 'Bucket de state a usar cuando environment=tutor. Vacío en los demás ambientes.'
+    required: false
+    default: ''
+  db-username:
+    description: 'Usuario de la base de datos. Opcional, solo se pasa a terraform si viene configurado.'
+    required: false
+    default: ''
+  db-password:
+    description: 'Contraseña de la base de datos. Opcional, solo se pasa a terraform si viene configurado.'
+    required: false
+    default: ''
+  previous-outputs-json:
+    description: >
+      JSON con outputs ya acumulados de una corrida anterior de esta misma
+      action (ej. la de tf_stacks, para que post_k8s_stacks siga combinando
+      sobre esos outputs). Por defecto arranca vacío.
+    required: false
+    default: '{}'
+
+outputs:
+  tf-outputs:
+    description: Mapa combinado (JSON) de todos los outputs de los stacks aplicados, incluyendo previous-outputs-json.
+    value: ${{ steps.apply.outputs.json }}
+
+runs:
+  using: composite
+  steps:
+    - name: Read required Terraform version
+      # terraform/.terraform-version es opcional: si el repo no lo tiene,
+      # se usa 1.12.0 como versión por defecto.
+      id: tf_version
+      shell: bash
+      run: |
+        if [ -f terraform/.terraform-version ]; then
+          version=$(cat terraform/.terraform-version)
+        else
+          version="1.12.0"
+        fi
+        echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ steps.tf_version.outputs.version }}
+
+    - name: Apply each terraform stack, in order
+      id: apply
+      shell: bash
+      env:
+        DB_USERNAME: ${{ inputs.db-username }}
+        DB_PASSWORD: ${{ inputs.db-password }}
+        TF_STATE_BUCKET_NAME: ${{ inputs.tf-state-bucket-name }}
+        REPO_NAME: ${{ github.repository }}
+      run: |
+        echo '${{ inputs.previous-outputs-json }}' > /tmp/tf_outputs.json
+        repo_name="${REPO_NAME##*/}"
+
+        if [ "${{ inputs.environment }}" = "tutor" ]; then
+          env_environment="${{ inputs.default-env }}"
+        else
+          env_environment="${{ inputs.environment }}"
+        fi
+
+        # DB_USERNAME/DB_PASSWORD son opcionales: solo se pasan a terraform si
+        # vienen configurados, para no generar un warning de "value for
+        # undeclared variable" en stacks que no las usan (equipos que
+        # hardcodean las credenciales en su HCL en vez de usar variables).
+        db_vars=()
+        if [ -n "$DB_USERNAME" ]; then
+          db_vars+=("-var=db_username=${DB_USERNAME}")
+        fi
+        if [ -n "$DB_PASSWORD" ]; then
+          db_vars+=("-var=db_password=${DB_PASSWORD}")
+        fi
+
+        echo '${{ inputs.stacks-json }}' | jq -r '.[]' | while read -r stack_name; do
+          stack_dir="terraform/stacks/${stack_name}"
+          # terraform/stacks/<nombre> tiene siempre la misma profundidad
+          # (3 niveles), así que la ruta de vuelta a la raíz del repo
+          # siempre es "../../../" (terraform init/plan corren con
+          # working-directory dentro del propio stack).
+          env_dir="../../../terraform/environments/${env_environment}/${stack_name}"
+
+          echo "::group::terraform ($stack_name)"
+          pushd "$stack_dir" >/dev/null
+
+          if [ "${{ inputs.environment }}" = "tutor" ]; then
+            terraform init -reconfigure \
+              -backend-config="${env_dir}/backend.tfvars" \
+              -backend-config="bucket=${TF_STATE_BUCKET_NAME}" \
+              -backend-config="key=${repo_name}/${stack_name}/terraform.tfstate" \
+              -backend-config="region=us-east-1"
+          else
+            terraform init -reconfigure -backend-config="${env_dir}/backend.tfvars"
+          fi
+          terraform plan \
+            "${db_vars[@]}" \
+            -var-file="${env_dir}/terraform.tfvars" \
+            -out=.tfplan
+          terraform apply .tfplan
+          terraform output -json > /tmp/stack_outputs.json
+
+          popd >/dev/null
+          echo "::endgroup::"
+
+          # Aplana {name: {value, type, sensitive}} a {name: value} y lo
+          # combina con lo acumulado hasta ahora (stacks anteriores, y
+          # previous-outputs-json si esta action se está encadenando).
+          jq -s '.[0] * (.[1] | map_values(.value))' \
+            /tmp/tf_outputs.json /tmp/stack_outputs.json > /tmp/tf_outputs_new.json
+          mv /tmp/tf_outputs_new.json /tmp/tf_outputs.json
+        done
+
+        echo "json=$(jq -c '.' /tmp/tf_outputs.json)" >> "$GITHUB_OUTPUT"

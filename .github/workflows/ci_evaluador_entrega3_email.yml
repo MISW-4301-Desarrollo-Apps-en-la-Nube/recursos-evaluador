@@ -1,4 +1,14 @@
-name: Entrega 3 - Evaluador Implementación con Email
+name: Entrega 3 - Evaluador Implementación con Email (OBSOLETO)
+
+# OBSOLETO: la prueba de envío de correos se fusionó dentro de
+# "Evaluador Implementación Entrega 3" (ci_evaluador_entrega3.yml), que ahora
+# lee el correo destino desde la clave EMAIL_TO_NOTIFY del secret de Secrets
+# Manager "secrets-pipeline-native-map" en vez de recibirlo como parámetro
+# manual. Use ci_evaluador_entrega3.yml en su lugar.
+#
+# Este archivo se deja a propósito (no se borra) para que cualquier
+# invocación existente (manual o `uses:` desde otro repo) falle rápido con un
+# mensaje claro en vez de con un error de "workflow not found".
 on:
   workflow_dispatch:
     inputs:
@@ -33,31 +43,14 @@ on:
       AWS_SESSION_TOKEN:
         required: true
 jobs:
-  run-pipeline:
+  obsolete:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: 18
-          registry-url: https://registry.npmjs.org/
-      - name: Create evaluator folder
-        run: mkdir -p .evaluator
-      - name: Download validate scripts
-        run: curl -sSL -o .evaluator/entrega3.json https://raw.githubusercontent.com/MISW-4301-Desarrollo-Apps-en-la-Nube/proyecto-monitor/main/entrega3/entrega3.json
-      - name: Checkout evaluator resources
-        uses: actions/checkout@v4
-        with:
-          repository: MISW-4301-Desarrollo-Apps-en-la-Nube/recursos-evaluador
-          ref: main
-          path: .evaluator-resources
-      - name: Connect to EKS cluster
-        uses: ./.evaluator-resources/.github/actions/connect-eks-cluster
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-      - name: Test entrega 3 works
-        run: newman run ".evaluator/entrega3.json" --env-var BASE_PATH=$BASE_PATH --env-var EMAIL=${{ inputs.email }} --verbose --insecure
+      - name: Este pipeline está obsoleto
+        run: |
+          echo "❌ Este pipeline (ci_evaluador_entrega3_email.yml) está OBSOLETO y ya no se usa para calificar."
+          echo "La prueba de envío de correos ahora es parte de 'Evaluador Implementación Entrega 3' (ci_evaluador_entrega3.yml)."
+          echo "Ese pipeline lee el correo destino automáticamente desde el secret EMAIL_TO_NOTIFY (vía Secrets Manager), ya no se pasa como parámetro manual."
+          echo "Ejecute ci_evaluador_entrega3.yml en su lugar."
+          exit 1
