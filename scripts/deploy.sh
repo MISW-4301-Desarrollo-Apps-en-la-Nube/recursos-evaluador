@@ -226,7 +226,7 @@ echo "$apps" | jq -c '.[]' | while read -r app; do
   image_tag=$(echo "$app" | jq -r '.image_tag')
 
   echo "== build+push: ${name} =="
-  docker build -t "${image_name}:${image_tag}" --label version="${image_tag}" -f "${folder}/Dockerfile" "$folder"
+  docker build --platform linux/amd64 -t "${image_name}:${image_tag}" --label version="${image_tag}" -f "${folder}/Dockerfile" "$folder"
   docker tag "${image_name}:${image_tag}" "${ecr_registry}/${image_name}:${image_tag}"
   docker push "${ecr_registry}/${image_name}:${image_tag}"
 done
