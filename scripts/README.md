@@ -111,7 +111,16 @@ Desde la raíz del repositorio:
 
 ```bash
 bash scripts/deploy.sh
+```
+
+Aprueben la suscripción del correo electrónico en caso que hayan utilizado un SNS para notificaciones. Y luego, para probar la entrega 3:
+
+```bash
 bash scripts/test-entrega3.sh
+```
+
+Al final, para destruir los recursos creados:
+```bash
 bash scripts/destroy.sh
 ```
 
