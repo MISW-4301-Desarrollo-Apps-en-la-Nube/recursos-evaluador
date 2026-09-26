@@ -9,6 +9,13 @@
 set -euo pipefail
 shopt -s nullglob
 
+# jq.exe / yq.exe en Windows escriben CRLF. Command substitution y
+# `for x in $(jq -r ...)` dejan el \r pegado al nombre, y [ -d ] falla
+# aunque la carpeta exista.
+jq() { command jq "$@" | tr -d '\r'; }
+yq() { command yq "$@" | tr -d '\r'; }
+echo "after jq and yq"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
@@ -261,7 +268,9 @@ helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
 
 # Los outputs de terraform quedan disponibles como variables de entorno en
 # mayúscula (ej. output "db_host" -> $DB_HOST) para el envsubst de abajo.
-while IFS='=' read -r key value; do
+while IFS= read -r line; do
+  key="${line%%=*}"
+  value="${line#*=}"
   export "$key"="$value"
 done < <(jq -r 'to_entries[] | "\(.key | ascii_upcase)=\(.value)"' "$tf_outputs_file")
 export ACCOUNT_ID="$account_id"
