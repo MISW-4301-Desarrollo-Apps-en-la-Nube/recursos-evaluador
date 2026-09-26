@@ -142,3 +142,6 @@ bash scripts/destroy.sh
   el archivo quedó con saltos de línea de Windows (CRLF). Conviértanlo a LF,
   por ejemplo con `dos2unix scripts/*.sh`, o configuren Git con
   `git config core.autocrlf input` antes de clonar de nuevo.
+- **`Failed to query available provider packages` / `TLS handshake timeout`
+  al conectarse a `registry.terraform.io`**: es un corte de red transitorio,
+  no un error de los scripts. Vuelvan a ejecutar el script y listo.
