@@ -9,6 +9,13 @@
 set -euo pipefail
 shopt -s nullglob
 
+# jq.exe / yq.exe en Windows escriben CRLF. Command substitution y
+# `for x in $(jq -r ...)` dejan el \r pegado al nombre, y [ -d ] falla
+# aunque la carpeta exista.
+jq() { command jq "$@" | tr -d '\r'; }
+yq() { command yq "$@" | tr -d '\r'; }
+echo "after jq and yq"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
@@ -217,7 +224,21 @@ apply_stacks "$tf_stacks"
 # -----------------------------------------------------------------------
 account_id=$(aws sts get-caller-identity --query Account --output text)
 ecr_registry="${account_id}.dkr.ecr.${region}.amazonaws.com"
-aws ecr get-login-password --region "$region" | docker login --username AWS --password-stdin "$ecr_registry"
+# Tras terraform (lambdas) el login a ECR suele existir ya. En macOS un
+# segundo login puede fallar con Keychain -25299; en Windows/Linux no.
+login_err="$(mktemp)"
+if ! aws ecr get-login-password --region "$region" \
+  | docker login --username AWS --password-stdin "$ecr_registry" 2>"$login_err"
+then
+  if grep -qE 'already exists in the keychain|-25299' "$login_err"; then
+    echo "ECR login already present; continuing"
+  else
+    cat "$login_err" >&2
+    rm -f "$login_err"
+    exit 1
+  fi
+fi
+rm -f "$login_err"
 
 echo "$apps" | jq -c '.[]' | while read -r app; do
   name=$(echo "$app" | jq -r '.name')
@@ -247,7 +268,9 @@ helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
 
 # Los outputs de terraform quedan disponibles como variables de entorno en
 # mayúscula (ej. output "db_host" -> $DB_HOST) para el envsubst de abajo.
-while IFS='=' read -r key value; do
+while IFS= read -r line; do
+  key="${line%%=*}"
+  value="${line#*=}"
   export "$key"="$value"
 done < <(jq -r 'to_entries[] | "\(.key | ascii_upcase)=\(.value)"' "$tf_outputs_file")
 export ACCOUNT_ID="$account_id"
